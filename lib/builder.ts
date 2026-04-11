@@ -6,7 +6,7 @@ import {
   RoundingMode,
   MarkupSettings,
 } from './types'
-import { applyRounding, getMarkupRate, reverseCalcUnitPrice } from './markup'
+import { applyRounding, calcSellingPrice, reverseCalcUnitPrice } from './markup'
 
 export function recalculateSellingPrices(
   items: EstimateItem[],
@@ -15,9 +15,8 @@ export function recalculateSellingPrices(
 ): EstimateItem[] {
   return items.map((item) => {
     if (item.sellingUnitPriceEdited) return item
-    const rate = getMarkupRate(item.category, markup)
     const sellingUnitPrice = item.costPrice != null
-      ? applyRounding(item.costPrice * rate, mode)
+      ? calcSellingPrice(item.costPrice, item.category, markup, mode)
       : null
     return { ...item, sellingUnitPrice }
   })
@@ -73,8 +72,9 @@ export function buildItems(
     for (const item of result.items) {
       const { costPrice, extraWarnings } = buildCostPriceInfo(item, mode)
       const allWarnings = [...(item.warnings || []), ...extraWarnings]
-      const rate = getMarkupRate(item.category, markup)
-      const sellingUnitPrice = costPrice != null ? applyRounding(costPrice * rate, mode) : null
+      const sellingUnitPrice = costPrice != null
+        ? calcSellingPrice(costPrice, item.category, markup, mode)
+        : null
       items.push({
         id: crypto.randomUUID(),
         sourceFileName: result.fileName,

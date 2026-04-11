@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { RoundingMode, ProfitBase, MarkupSettings } from '@/lib/types'
+import { RoundingMode, ProfitBase, PricingMode, MarkupSettings } from '@/lib/types'
 
 interface SettingsModalProps {
   roundingMode: RoundingMode
@@ -25,6 +25,11 @@ const PROFIT_BASE_OPTIONS: { value: ProfitBase; label: string; description: stri
   { value: 'tax_included', label: '税込売価ベース', description: '粗利 = 税込売価 − 税抜原価' },
 ]
 
+const PRICING_MODE_OPTIONS: { value: PricingMode; label: string; description: string }[] = [
+  { value: 'markup', label: '掛率', description: '原価 × 掛率 = 売価' },
+  { value: 'margin', label: '粗利率', description: '原価 ÷ (1 − 粗利率) = 売価' },
+]
+
 export default function SettingsModal({
   roundingMode,
   onRoundingModeChange,
@@ -37,29 +42,62 @@ export default function SettingsModal({
   const [newCategory, setNewCategory] = useState('')
   const [newRate, setNewRate] = useState('')
 
+  const isMarkup = markupSettings.pricingMode === 'markup'
+
+  function handlePricingModeChange(mode: PricingMode) {
+    onMarkupSettingsChange({ ...markupSettings, pricingMode: mode })
+  }
+
   function updateDefaultRate(value: string) {
     const num = parseFloat(value)
     if (isNaN(num) || num <= 0) return
     onMarkupSettingsChange({ ...markupSettings, defaultRate: num })
   }
 
+  function updateDefaultMargin(value: string) {
+    const num = parseFloat(value)
+    if (isNaN(num) || num <= 0 || num >= 100) return
+    onMarkupSettingsChange({ ...markupSettings, defaultMargin: num })
+  }
+
   function addCategoryRate() {
     const trimmed = newCategory.trim()
     const rate = parseFloat(newRate)
-    if (!trimmed || isNaN(rate) || rate <= 0) return
-    onMarkupSettingsChange({
-      ...markupSettings,
-      categoryRates: { ...markupSettings.categoryRates, [trimmed]: rate },
-    })
+    if (!trimmed) return
+
+    if (isMarkup) {
+      if (isNaN(rate) || rate <= 0) return
+      onMarkupSettingsChange({
+        ...markupSettings,
+        categoryRates: { ...markupSettings.categoryRates, [trimmed]: rate },
+      })
+    } else {
+      if (isNaN(rate) || rate <= 0 || rate >= 100) return
+      onMarkupSettingsChange({
+        ...markupSettings,
+        categoryMargins: { ...markupSettings.categoryMargins, [trimmed]: rate },
+      })
+    }
     setNewCategory('')
     setNewRate('')
   }
 
   function removeCategoryRate(category: string) {
-    const next = { ...markupSettings.categoryRates }
-    delete next[category]
-    onMarkupSettingsChange({ ...markupSettings, categoryRates: next })
+    if (isMarkup) {
+      const next = { ...markupSettings.categoryRates }
+      delete next[category]
+      onMarkupSettingsChange({ ...markupSettings, categoryRates: next })
+    } else {
+      const next = { ...markupSettings.categoryMargins }
+      delete next[category]
+      onMarkupSettingsChange({ ...markupSettings, categoryMargins: next })
+    }
   }
+
+  // 現在のモードに応じた工種別設定を取得
+  const categoryEntries = isMarkup
+    ? Object.entries(markupSettings.categoryRates)
+    : Object.entries(markupSettings.categoryMargins)
 
   return (
     <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4" onClick={onClose}>
@@ -75,39 +113,101 @@ export default function SettingsModal({
 
         <div className="px-6 py-5 space-y-6">
 
-          {/* 掛率設定 */}
+          {/* 売価計算方式 */}
           <div>
-            <p className="text-sm font-semibold text-gray-700 mb-1">掛率設定</p>
-            <p className="text-xs text-gray-400 mb-3">原価に掛率を乗せて売値を自動計算します</p>
+            <p className="text-sm font-semibold text-gray-700 mb-1">売価計算方式</p>
+            <p className="text-xs text-gray-400 mb-3">原価から売価を算出する方法を選択</p>
+            <div className="flex gap-2 mb-4">
+              {PRICING_MODE_OPTIONS.map((opt) => (
+                <button
+                  key={opt.value}
+                  onClick={() => handlePricingModeChange(opt.value)}
+                  className={`flex-1 text-center py-2.5 px-3 rounded-lg border text-sm font-medium transition-colors ${
+                    markupSettings.pricingMode === opt.value
+                      ? 'bg-blue-50 border-blue-400 text-blue-700'
+                      : 'bg-white border-gray-200 text-gray-500 hover:border-gray-300'
+                  }`}
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+            <p className="text-xs text-gray-400 bg-gray-50 rounded-lg px-3 py-2">
+              {isMarkup
+                ? '例）掛率1.2 → 原価10万 × 1.2 = 売価12万（粗利率16.7%）'
+                : '例）粗利率20% → 原価10万 ÷ 0.8 = 売価12.5万（粗利率20%）'}
+            </p>
+          </div>
 
-            {/* デフォルト掛率 */}
+          {/* 区切り */}
+          <div className="border-t border-gray-100" />
+
+          {/* 掛率 or 粗利率の設定 */}
+          <div>
+            <p className="text-sm font-semibold text-gray-700 mb-1">
+              {isMarkup ? '掛率設定' : '粗利率設定'}
+            </p>
+            <p className="text-xs text-gray-400 mb-3">
+              {isMarkup
+                ? '原価に掛率を乗せて売値を自動計算します'
+                : '目標粗利率から売値を自動計算します'}
+            </p>
+
+            {/* デフォルト値 */}
             <div className="mb-4">
-              <label className="block text-xs font-medium text-gray-500 mb-1">デフォルト掛率（全工種共通）</label>
+              <label className="block text-xs font-medium text-gray-500 mb-1">
+                {isMarkup ? 'デフォルト掛率（全工種共通）' : 'デフォルト粗利率（全工種共通）'}
+              </label>
               <div className="flex items-center gap-2">
-                <input
-                  type="number"
-                  step="0.01"
-                  min="1"
-                  defaultValue={markupSettings.defaultRate}
-                  onBlur={(e) => updateDefaultRate(e.target.value)}
-                  className="w-24 text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                />
-                <span className="text-xs text-gray-400">
-                  例）1.2 → 原価の20%増し
-                </span>
+                {isMarkup ? (
+                  <>
+                    <input
+                      type="number"
+                      step="0.01"
+                      min="1"
+                      defaultValue={markupSettings.defaultRate}
+                      onBlur={(e) => updateDefaultRate(e.target.value)}
+                      key="markup-default"
+                      className="w-24 text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                    />
+                    <span className="text-xs text-gray-400">
+                      例）1.2 → 原価の20%増し
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <input
+                      type="number"
+                      step="0.1"
+                      min="0.1"
+                      max="99.9"
+                      defaultValue={markupSettings.defaultMargin}
+                      onBlur={(e) => updateDefaultMargin(e.target.value)}
+                      key="margin-default"
+                      className="w-24 text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                    />
+                    <span className="text-xs text-gray-400">
+                      %（例：20 → 粗利率20%）
+                    </span>
+                  </>
+                )}
               </div>
             </div>
 
-            {/* 工種別掛率 */}
+            {/* 工種別設定 */}
             <div>
-              <label className="block text-xs font-medium text-gray-500 mb-2">工種別掛率（上書き）</label>
-              {Object.entries(markupSettings.categoryRates).length > 0 && (
+              <label className="block text-xs font-medium text-gray-500 mb-2">
+                {isMarkup ? '工種別掛率（上書き）' : '工種別粗利率（上書き）'}
+              </label>
+              {categoryEntries.length > 0 && (
                 <div className="space-y-1 mb-2">
-                  {Object.entries(markupSettings.categoryRates).map(([cat, rate]) => (
+                  {categoryEntries.map(([cat, rate]) => (
                     <div key={cat} className="flex items-center justify-between px-3 py-2 bg-gray-50 rounded-lg">
                       <span className="text-xs text-gray-700">{cat}</span>
                       <div className="flex items-center gap-2">
-                        <span className="text-xs font-mono text-blue-600">{rate}掛</span>
+                        <span className="text-xs font-mono text-blue-600">
+                          {isMarkup ? `${rate}掛` : `${rate}%`}
+                        </span>
                         <button
                           onClick={() => removeCategoryRate(cat)}
                           className="text-gray-300 hover:text-red-400 text-sm"
@@ -127,9 +227,10 @@ export default function SettingsModal({
                 />
                 <input
                   type="number"
-                  placeholder="掛率"
-                  step="0.01"
-                  min="1"
+                  placeholder={isMarkup ? '掛率' : '%'}
+                  step={isMarkup ? '0.01' : '0.1'}
+                  min={isMarkup ? '1' : '0.1'}
+                  max={isMarkup ? undefined : '99.9'}
                   value={newRate}
                   onChange={(e) => setNewRate(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && addCategoryRate()}

@@ -1,9 +1,13 @@
 export type RoundingMode = 'floor' | 'round' | 'ceil' | 'trunc'
 export type ProfitBase = 'tax_excluded' | 'tax_included'
+export type PricingMode = 'markup' | 'margin'
 
 export interface MarkupSettings {
+  pricingMode: PricingMode             // 掛率 or 粗利率
   defaultRate: number                  // デフォルト掛率（例：1.2）
-  categoryRates: Record<string, number> // 工種別上書き（例：{"電気工事": 1.3}）
+  categoryRates: Record<string, number> // 工種別上書き掛率（例：{"電気工事": 1.3}）
+  defaultMargin: number                // デフォルト粗利率%（例：20）
+  categoryMargins: Record<string, number> // 工種別上書き粗利率%（例：{"電気工事": 25}）
 }
 
 export interface EstimateItem {

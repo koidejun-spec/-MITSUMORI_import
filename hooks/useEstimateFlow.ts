@@ -1,19 +1,27 @@
 import { useState, useEffect, useCallback } from 'react'
 import { EstimateItem, GlobalWarning, RoundingMode, ProfitBase, MarkupSettings } from '@/lib/types'
-import { applyRounding, getMarkupRate } from '@/lib/markup'
+import { applyRounding, calcSellingPrice } from '@/lib/markup'
 import { extractFromFiles } from '@/lib/api'
 import { buildItems, buildWarnings, recalculateSellingPrices } from '@/lib/builder'
 import { downloadCSV } from '@/lib/csv'
 import { saveState, loadState, clearState } from '@/lib/storage'
 
-const DEFAULT_MARKUP: MarkupSettings = { defaultRate: 1.2, categoryRates: {} }
+const DEFAULT_MARKUP: MarkupSettings = {
+  pricingMode: 'markup',
+  defaultRate: 1.2,
+  categoryRates: {},
+  defaultMargin: 20,
+  categoryMargins: {},
+}
 
 function loadMarkupSettings(): MarkupSettings {
   if (typeof window === 'undefined') return DEFAULT_MARKUP
   try {
     const data = localStorage.getItem('markupSettings')
     if (!data) return DEFAULT_MARKUP
-    return JSON.parse(data) as MarkupSettings
+    const parsed = JSON.parse(data)
+    // 旧フォーマット互換: 新フィールドがなければデフォルトで補完
+    return { ...DEFAULT_MARKUP, ...parsed }
   } catch {
     return DEFAULT_MARKUP
   }
@@ -116,10 +124,9 @@ export function useEstimateFlow() {
         prev.map((item) => {
           if (targetFileName && item.sourceFileName !== targetFileName) return item
           const newCostPrice = item.costPrice != null ? applyRounding(item.costPrice / 1.1, roundingMode) : null
-          const rate = getMarkupRate(item.category, markupSettings)
           const newSellingUnitPrice = item.sellingUnitPriceEdited
             ? item.sellingUnitPrice
-            : (newCostPrice != null ? applyRounding(newCostPrice * rate, roundingMode) : null)
+            : (newCostPrice != null ? calcSellingPrice(newCostPrice, item.category, markupSettings, roundingMode) : null)
           return {
             ...item,
             costPrice: newCostPrice,
