@@ -1,49 +1,4 @@
-import { EstimateItem } from './types'
-
-/** カテゴリ単位でまとめたCSV出力用のアイテムリストを生成（非破壊） */
-export function buildOutputItems(items: EstimateItem[], collapsedCategories: Set<string>): EstimateItem[] {
-  if (collapsedCategories.size === 0) return items
-
-  const result: EstimateItem[] = []
-  const processedCats = new Set<string>()
-
-  for (const item of items) {
-    const cat = item.category ?? '未分類'
-    if (!collapsedCategories.has(cat)) {
-      result.push(item)
-      continue
-    }
-    if (processedCats.has(cat)) continue
-    processedCats.add(cat)
-
-    const catItems = items.filter((i) => (i.category ?? '未分類') === cat)
-    const totalAmount = catItems.reduce((sum, i) => sum + (i.amount ?? 0), 0)
-    const totalSelling = catItems.reduce((sum, i) => {
-      const raw = i.sellingUnitPrice != null && i.quantity != null
-        ? i.sellingUnitPrice * i.quantity
-        : (i.sellingUnitPrice ?? 0)
-      return sum + Math.round(raw)
-    }, 0)
-
-    result.push({
-      ...catItems[0],
-      id: `summary-${cat}`,
-      itemName: cat,
-      specification: catItems.map((i) => i.itemName).filter(Boolean).join('、'),
-      quantity: 1,
-      unit: '式',
-      unitPrice: totalAmount,
-      amount: totalAmount,
-      costPrice: totalAmount,
-      sellingUnitPrice: totalSelling,
-      sellingUnitPriceEdited: false,
-      remarks: `${catItems.length}件まとめ`,
-      excluded: false,
-    })
-  }
-
-  return result
-}
+import { EstimateItem, ProfitBase } from './types'
 
 function escapeCSV(value: string | number | null | undefined): string {
   const str = value == null ? '' : String(value)
@@ -53,7 +8,7 @@ function escapeCSV(value: string | number | null | undefined): string {
   return str
 }
 
-export function generateCSV(items: EstimateItem[]): string {
+export function generateCSV(items: EstimateItem[], profitBase: ProfitBase = 'tax_excluded'): string {
   const headers = [
     'No',
     'カテゴリ',
@@ -85,12 +40,17 @@ export function generateCSV(items: EstimateItem[]): string {
     // 原価合計は業者の見積書と完全一致させるため item.amount をそのまま使用
     const costTotal = item.amount
 
-    const grossProfit = sellingAmount != null && costTotal != null
-      ? sellingAmount - costTotal
+    // profitBase に応じて粗利計算の売価基準を切り替える
+    const sellingForProfit = sellingAmount != null
+      ? (profitBase === 'tax_included' ? Math.round(sellingAmount * 1.1) : sellingAmount)
       : null
 
-    const grossProfitRate = grossProfit != null && sellingAmount != null && sellingAmount !== 0
-      ? Math.round((grossProfit / sellingAmount) * 1000) / 10
+    const grossProfit = sellingForProfit != null && costTotal != null
+      ? sellingForProfit - costTotal
+      : null
+
+    const grossProfitRate = grossProfit != null && sellingForProfit != null && sellingForProfit !== 0
+      ? Math.round((grossProfit / sellingForProfit) * 1000) / 10
       : null
 
     // DRMへは「数量=1・単位=式・単価=合計額」で出力することで原価合計を正確に保つ
@@ -119,8 +79,8 @@ export function generateCSV(items: EstimateItem[]): string {
   return '\uFEFF' + lines.join('\r\n')
 }
 
-export function downloadCSV(items: EstimateItem[], filename = '見積取込データ.csv'): void {
-  const csv = generateCSV(items)
+export function downloadCSV(items: EstimateItem[], profitBase: ProfitBase = 'tax_excluded', filename = '見積取込データ.csv'): void {
+  const csv = generateCSV(items, profitBase)
   const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
   const url = URL.createObjectURL(blob)
   const a = document.createElement('a')

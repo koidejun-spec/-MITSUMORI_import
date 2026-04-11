@@ -22,6 +22,8 @@ export default function Home() {
     showSettings,
     setShowSettings,
     roundingMode,
+    profitBase,
+    handleProfitBaseChange,
     markupSettings,
     pendingWarnings,
     activeCount,
@@ -31,8 +33,6 @@ export default function Home() {
     handleWarningDecision,
     handleDownload,
     handleReset,
-    collapsedCategories,
-    toggleCategoryCollapse,
     handleRoundingModeChange,
     handleMarkupSettingsChange,
   } = useEstimateFlow()
@@ -82,6 +82,8 @@ export default function Home() {
           <SettingsModal
             roundingMode={roundingMode}
             onRoundingModeChange={handleRoundingModeChange}
+            profitBase={profitBase}
+            onProfitBaseChange={handleProfitBaseChange}
             markupSettings={markupSettings}
             onMarkupSettingsChange={handleMarkupSettingsChange}
             onClose={() => setShowSettings(false)}
@@ -156,9 +158,8 @@ export default function Home() {
                   items={items}
                   onUpdate={setItems}
                   roundingMode={roundingMode}
+                  profitBase={profitBase}
                   markupSettings={markupSettings}
-                  collapsedCategories={collapsedCategories}
-                  onToggleCategoryCollapse={toggleCategoryCollapse}
                 />
 
                 <div className="mt-8 bg-white border border-gray-200 rounded-2xl p-6 text-center shadow-sm">

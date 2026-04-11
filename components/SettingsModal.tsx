@@ -1,11 +1,13 @@
 'use client'
 
 import { useState } from 'react'
-import { RoundingMode, MarkupSettings } from '@/lib/types'
+import { RoundingMode, ProfitBase, MarkupSettings } from '@/lib/types'
 
 interface SettingsModalProps {
   roundingMode: RoundingMode
   onRoundingModeChange: (mode: RoundingMode) => void
+  profitBase: ProfitBase
+  onProfitBaseChange: (base: ProfitBase) => void
   markupSettings: MarkupSettings
   onMarkupSettingsChange: (settings: MarkupSettings) => void
   onClose: () => void
@@ -18,9 +20,16 @@ const ROUNDING_OPTIONS: { value: RoundingMode; label: string; description: strin
   { value: 'trunc', label: '端数除去', description: '666.9 → 666' },
 ]
 
+const PROFIT_BASE_OPTIONS: { value: ProfitBase; label: string; description: string }[] = [
+  { value: 'tax_excluded', label: '税抜売価ベース（推奨）', description: '粗利 = 税抜売価 − 税抜原価' },
+  { value: 'tax_included', label: '税込売価ベース', description: '粗利 = 税込売価 − 税抜原価' },
+]
+
 export default function SettingsModal({
   roundingMode,
   onRoundingModeChange,
+  profitBase,
+  onProfitBaseChange,
   markupSettings,
   onMarkupSettingsChange,
   onClose,
@@ -137,36 +146,46 @@ export default function SettingsModal({
           {/* 区切り */}
           <div className="border-t border-gray-100" />
 
+          {/* 粗利計算基準 */}
+          <div>
+            <p className="text-sm font-semibold text-gray-700 mb-1">粗利計算基準</p>
+            <p className="text-xs text-gray-400 mb-3">粗利率の算出に使用する売価の基準</p>
+            <select
+              value={profitBase}
+              onChange={(e) => onProfitBaseChange(e.target.value as ProfitBase)}
+              className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white"
+            >
+              {PROFIT_BASE_OPTIONS.map((opt) => (
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
+              ))}
+            </select>
+            <p className="text-xs text-gray-400 mt-2">
+              {profitBase === 'tax_excluded'
+                ? '例：売価300,000円（税抜）− 原価220,000円 = 粗利80,000円（26.7%）'
+                : '例：売価330,000円（税込）− 原価220,000円 = 粗利110,000円（33.3%）'}
+            </p>
+          </div>
+
+          {/* 区切り */}
+          <div className="border-t border-gray-100" />
+
           {/* 端数処理 */}
           <div>
             <p className="text-sm font-semibold text-gray-700 mb-1">端数処理ルール</p>
             <p className="text-xs text-gray-400 mb-3">単価を逆算する際（金額÷数量）の端数処理方法</p>
-            <div className="space-y-2">
+            <select
+              value={roundingMode}
+              onChange={(e) => onRoundingModeChange(e.target.value as RoundingMode)}
+              className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white"
+            >
               {ROUNDING_OPTIONS.map((opt) => (
-                <label
-                  key={opt.value}
-                  className={`flex items-center justify-between px-4 py-3 rounded-xl border cursor-pointer transition-colors
-                    ${roundingMode === opt.value
-                      ? 'border-blue-500 bg-blue-50'
-                      : 'border-gray-200 hover:border-gray-300'}`}
-                >
-                  <div className="flex items-center gap-3">
-                    <input
-                      type="radio"
-                      name="roundingMode"
-                      value={opt.value}
-                      checked={roundingMode === opt.value}
-                      onChange={() => onRoundingModeChange(opt.value)}
-                      className="accent-blue-600"
-                    />
-                    <span className={`text-sm font-medium ${roundingMode === opt.value ? 'text-blue-700' : 'text-gray-700'}`}>
-                      {opt.label}
-                    </span>
-                  </div>
-                  <span className="text-xs text-gray-400 font-mono">{opt.description}</span>
-                </label>
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}（{opt.description}）
+                </option>
               ))}
-            </div>
+            </select>
           </div>
 
         </div>

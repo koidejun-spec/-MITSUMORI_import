@@ -1,9 +1,9 @@
 import { useState, useEffect, useCallback } from 'react'
-import { EstimateItem, GlobalWarning, RoundingMode, MarkupSettings } from '@/lib/types'
+import { EstimateItem, GlobalWarning, RoundingMode, ProfitBase, MarkupSettings } from '@/lib/types'
 import { applyRounding, getMarkupRate } from '@/lib/markup'
 import { extractFromFiles } from '@/lib/api'
 import { buildItems, buildWarnings, recalculateSellingPrices } from '@/lib/builder'
-import { downloadCSV, buildOutputItems } from '@/lib/csv'
+import { downloadCSV } from '@/lib/csv'
 import { saveState, loadState, clearState } from '@/lib/storage'
 
 const DEFAULT_MARKUP: MarkupSettings = { defaultRate: 1.2, categoryRates: {} }
@@ -37,11 +37,14 @@ export function useEstimateFlow() {
   const [downloaded, setDownloaded] = useState(false)
   const [showSettings, setShowSettings] = useState(false)
   const [roundingMode, setRoundingMode] = useState<RoundingMode>(() => {
-    if (typeof window === 'undefined') return 'round'
-    return (localStorage.getItem('roundingMode') as RoundingMode) || 'round'
+    if (typeof window === 'undefined') return 'floor'
+    return (localStorage.getItem('roundingMode') as RoundingMode) || 'floor'
   })
   const [markupSettings, setMarkupSettings] = useState<MarkupSettings>(loadMarkupSettings)
-  const [collapsedCategories, setCollapsedCategories] = useState<Set<string>>(new Set())
+  const [profitBase, setProfitBase] = useState<ProfitBase>(() => {
+    if (typeof window === 'undefined') return 'tax_excluded'
+    return (localStorage.getItem('profitBase') as ProfitBase) || 'tax_excluded'
+  })
 
   // 掛率または端数処理が変わったら再計算
   useEffect(() => {
@@ -135,7 +138,7 @@ export function useEstimateFlow() {
       return
     }
 
-    const outputItems = buildOutputItems(activeItems, collapsedCategories)
+    const outputItems = activeItems
 
     const vendors = Array.from(new Set(activeItems.map((i) => i.vendorName).filter(Boolean)))
     const vendorPart = vendors.length === 0
@@ -147,9 +150,9 @@ export function useEstimateFlow() {
     const datePart = `${today.getFullYear()}${String(today.getMonth() + 1).padStart(2, '0')}${String(today.getDate()).padStart(2, '0')}`
     const filename = `${vendorPart}_${datePart}.csv`
 
-    downloadCSV(outputItems, filename)
+    downloadCSV(outputItems, profitBase, filename)
     setDownloaded(true)
-  }, [items, collapsedCategories])
+  }, [items, profitBase])
 
   const handleReset = useCallback(() => {
     if (confirm('新しいファイルを処理しますか？現在のデータは消去されます。')) {
@@ -162,13 +165,9 @@ export function useEstimateFlow() {
     }
   }, [])
 
-  const toggleCategoryCollapse = useCallback((category: string) => {
-    setCollapsedCategories((prev) => {
-      const next = new Set(prev)
-      if (next.has(category)) next.delete(category)
-      else next.add(category)
-      return next
-    })
+  const handleProfitBaseChange = useCallback((base: ProfitBase) => {
+    setProfitBase(base)
+    localStorage.setItem('profitBase', base)
   }, [])
 
   const handleRoundingModeChange = useCallback((mode: RoundingMode) => {
@@ -205,8 +204,8 @@ export function useEstimateFlow() {
     handleWarningDecision,
     handleDownload,
     handleReset,
-    collapsedCategories,
-    toggleCategoryCollapse,
+    profitBase,
+    handleProfitBaseChange,
     handleRoundingModeChange,
     handleMarkupSettingsChange,
   }

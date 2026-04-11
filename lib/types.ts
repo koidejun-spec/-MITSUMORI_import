@@ -1,4 +1,5 @@
 export type RoundingMode = 'floor' | 'round' | 'ceil' | 'trunc'
+export type ProfitBase = 'tax_excluded' | 'tax_included'
 
 export interface MarkupSettings {
   defaultRate: number                  // デフォルト掛率（例：1.2）

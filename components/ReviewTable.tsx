@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useMemo, Fragment } from 'react'
-import { EstimateItem, RoundingMode, MarkupSettings } from '@/lib/types'
+import { EstimateItem, RoundingMode, ProfitBase, MarkupSettings } from '@/lib/types'
 import { useReviewItems } from '@/hooks/useReviewItems'
 import { formatNum } from '@/components/ExpandableBadge'
 import ReviewTableRow from '@/components/ReviewTableRow'
@@ -15,9 +15,8 @@ interface ReviewTableProps {
   items: EstimateItem[]
   onUpdate: (items: EstimateItem[]) => void
   roundingMode: RoundingMode
+  profitBase: ProfitBase
   markupSettings: MarkupSettings
-  collapsedCategories: Set<string>
-  onToggleCategoryCollapse: (category: string) => void
 }
 
 function groupByCategory(items: EstimateItem[]): { category: string; items: EstimateItem[]; startIndex: number }[] {
@@ -31,7 +30,7 @@ function groupByCategory(items: EstimateItem[]): { category: string; items: Esti
   return Array.from(map.entries()).map(([category, { items, startIndex }]) => ({ category, items, startIndex }))
 }
 
-export default function ReviewTable({ items, onUpdate, roundingMode, markupSettings, collapsedCategories, onToggleCategoryCollapse }: ReviewTableProps) {
+export default function ReviewTable({ items, onUpdate, roundingMode, profitBase, markupSettings }: ReviewTableProps) {
   const [selected, setSelected] = useState<Set<string>>(new Set())
   const [bulkCategory, setBulkCategory] = useState('')
   const [showBulkInput, setShowBulkInput] = useState(false)
@@ -102,7 +101,7 @@ export default function ReviewTable({ items, onUpdate, roundingMode, markupSetti
     const today = new Date()
     const datePart = `${today.getFullYear()}${String(today.getMonth() + 1).padStart(2, '0')}${String(today.getDate()).padStart(2, '0')}`
     const filename = `${category}_${datePart}.csv`
-    downloadCSV(active, filename)
+    downloadCSV(active, profitBase, filename)
   }
 
   const { activeCount, allClear, totalCost, totalSelling } = useMemo(() => {
@@ -222,12 +221,10 @@ export default function ReviewTable({ items, onUpdate, roundingMode, markupSetti
                   return sum + Math.round(raw)
                 }, 0)
                 const groupCostTotal = groupActive.reduce((sum, i) => sum + (i.amount ?? 0), 0)
-                const isCollapsed = collapsedCategories.has(category)
-
                 return (
                   <Fragment key={category}>
                     {/* カテゴリヘッダー行 */}
-                    <tr className={`border-t-2 border-gray-300 ${isCollapsed ? 'bg-amber-50' : 'bg-gray-100'}`}>
+                    <tr className="border-t-2 border-gray-300 bg-gray-100">
                       <td colSpan={14} className="px-3 py-2">
                         <div className="flex items-center gap-3">
                           {/* カテゴリ名 */}
@@ -254,31 +251,7 @@ export default function ReviewTable({ items, onUpdate, roundingMode, markupSetti
 
                           {/* 操作ボタン群 */}
                           <div className="flex items-center gap-1.5">
-                            {/* まとめ／明細トグル */}
-                            {groupActive.length > 1 && (
-                              <button
-                                onClick={() => onToggleCategoryCollapse(category)}
-                                className={`inline-flex items-center gap-1 text-xs px-2.5 py-1 rounded-full border transition-colors whitespace-nowrap ${
-                                  isCollapsed
-                                    ? 'border-amber-300 bg-amber-100 text-amber-700 hover:bg-amber-200 font-medium'
-                                    : 'border-gray-300 bg-white text-gray-500 hover:border-amber-400 hover:text-amber-600'
-                                }`}
-                              >
-                                {isCollapsed ? (
-                                  <>
-                                    <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M2.5 4L5 6.5L7.5 4" /></svg>
-                                    明細に戻す
-                                  </>
-                                ) : (
-                                  <>
-                                    <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M2.5 6L5 3.5L7.5 6" /></svg>
-                                    まとめ
-                                  </>
-                                )}
-                              </button>
-                            )}
-
-                            {/* 統合（破壊的）／元に戻す */}
+                            {/* 統合／元に戻す */}
                             {(() => {
                               const mergedItem = groupItems.find((i) => i.mergedFrom)
                               if (mergedItem) {
@@ -293,7 +266,7 @@ export default function ReviewTable({ items, onUpdate, roundingMode, markupSetti
                                   </button>
                                 )
                               }
-                              if (!isCollapsed && groupActive.length > 1) {
+                              if (groupActive.length > 1) {
                                 return (
                                   <button
                                     onClick={() => mergeCategory(category)}
@@ -308,62 +281,43 @@ export default function ReviewTable({ items, onUpdate, roundingMode, markupSetti
                               return null
                             })()}
                           </div>
-
-                          {/* まとめ時の金額サマリー（右寄せ） */}
-                          {isCollapsed && (
-                            <div className="ml-auto flex items-center gap-4">
-                              <span className="text-xs text-gray-500 whitespace-nowrap">
-                                原価 <span className="font-semibold">{groupCostTotal > 0 ? `¥${formatNum(Math.round(groupCostTotal))}` : '—'}</span>
-                              </span>
-                              <span className="text-xs text-blue-600 whitespace-nowrap">
-                                売値 <span className="font-bold">{groupSellingTotal > 0 ? `¥${formatNum(groupSellingTotal)}` : '—'}</span>
-                              </span>
-                            </div>
-                          )}
                         </div>
                       </td>
                     </tr>
 
-                    {isCollapsed ? (
-                      /* まとめ表示時は明細行なし（ヘッダーにサマリーを表示済み） */
-                      null
-                    ) : (
-                      /* 明細表示：個別行（ドラッグ&ドロップ対応） */
-                      <>
-                        <SortableContext items={groupItems.map((i) => i.id)} strategy={verticalListSortingStrategy}>
-                          {groupItems.map((item, groupItemIndex) => (
-                            <ReviewTableRow
-                              key={item.id}
-                              item={item}
-                              globalIndex={startIndex + groupItemIndex}
-                              selected={selected.has(item.id)}
-                              onToggleSelect={toggleSelect}
-                              onUpdate={update}
-                              onUpdateAmount={updateAmount}
-                              onToggleExclude={toggleExclude}
-                              onSellingPriceEdit={handleSellingPriceEdit}
-                              onExpandCell={(id, field) => setExpandedCell({ id, field })}
-                            />
-                          ))}
-                        </SortableContext>
+                    {/* 明細表示：個別行（ドラッグ&ドロップ対応） */}
+                    <SortableContext items={groupItems.map((i) => i.id)} strategy={verticalListSortingStrategy}>
+                      {groupItems.map((item, groupItemIndex) => (
+                        <ReviewTableRow
+                          key={item.id}
+                          item={item}
+                          globalIndex={startIndex + groupItemIndex}
+                          selected={selected.has(item.id)}
+                          onToggleSelect={toggleSelect}
+                          onUpdate={update}
+                          onUpdateAmount={updateAmount}
+                          onToggleExclude={toggleExclude}
+                          onSellingPriceEdit={handleSellingPriceEdit}
+                          onExpandCell={(id, field) => setExpandedCell({ id, field })}
+                        />
+                      ))}
+                    </SortableContext>
 
-                        {/* 小計行 */}
-                        {(groupSellingTotal > 0 || groupCostTotal > 0) && (
-                          <tr className="bg-blue-50 border-t border-blue-200">
-                            <td colSpan={9} className="px-3 py-1.5 text-right text-xs font-semibold text-blue-600">
-                              小計
-                            </td>
-                            <td className="px-3 py-1.5 text-right text-xs font-semibold text-gray-500 whitespace-nowrap">
-                              {groupCostTotal > 0 ? `¥${formatNum(Math.round(groupCostTotal))}` : ''}
-                            </td>
-                            <td />
-                            <td className="px-3 py-1.5 text-right text-xs font-semibold text-blue-600 whitespace-nowrap">
-                              {groupSellingTotal > 0 ? `¥${formatNum(Math.round(groupSellingTotal))}` : ''}
-                            </td>
-                            <td colSpan={2} />
-                          </tr>
-                        )}
-                      </>
+                    {/* 小計行 */}
+                    {(groupSellingTotal > 0 || groupCostTotal > 0) && (
+                      <tr className="bg-blue-50 border-t border-blue-200">
+                        <td colSpan={9} className="px-3 py-1.5 text-right text-xs font-semibold text-blue-600">
+                          小計
+                        </td>
+                        <td className="px-3 py-1.5 text-right text-xs font-semibold text-gray-500 whitespace-nowrap">
+                          {groupCostTotal > 0 ? `¥${formatNum(Math.round(groupCostTotal))}` : ''}
+                        </td>
+                        <td />
+                        <td className="px-3 py-1.5 text-right text-xs font-semibold text-blue-600 whitespace-nowrap">
+                          {groupSellingTotal > 0 ? `¥${formatNum(Math.round(groupSellingTotal))}` : ''}
+                        </td>
+                        <td colSpan={2} />
+                      </tr>
                     )}
                   </Fragment>
                 )
@@ -382,14 +336,22 @@ export default function ReviewTable({ items, onUpdate, roundingMode, markupSetti
                   {totalSelling > 0 ? `¥${formatNum(totalSelling)}` : '—'}
                 </td>
                 <td colSpan={2} className="px-3 py-2.5 text-xs text-gray-400 whitespace-nowrap">
-                  {totalCost > 0 && totalSelling > 0 && (
-                    <>
-                      粗利率{' '}
-                      <span className="text-white font-semibold">
-                        {(((totalSelling - totalCost) / totalSelling) * 100).toFixed(1)}%
-                      </span>
-                    </>
-                  )}
+                  {totalCost > 0 && totalSelling > 0 && (() => {
+                    const sellingForProfit = profitBase === 'tax_included'
+                      ? Math.round(totalSelling * 1.1)
+                      : totalSelling
+                    const profit = sellingForProfit - totalCost
+                    const profitRate = (profit / sellingForProfit * 100).toFixed(1)
+                    return (
+                      <>
+                        粗利率{' '}
+                        <span className="text-white font-semibold">{profitRate}%</span>
+                        {profitBase === 'tax_included' && (
+                          <span className="text-gray-500 ml-1">(税込)</span>
+                        )}
+                      </>
+                    )
+                  })()}
                 </td>
               </tr>
             </tfoot>
