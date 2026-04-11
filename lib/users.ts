@@ -1,6 +1,4 @@
 import bcrypt from 'bcryptjs'
-import fs from 'fs'
-import path from 'path'
 
 interface StoredUser {
   email: string
@@ -10,11 +8,9 @@ interface StoredUser {
 
 function getUsers(): StoredUser[] {
   try {
-    const filePath = path.join(process.cwd(), 'users.json')
-    const raw = fs.readFileSync(filePath, 'utf8')
-    return JSON.parse(raw) as StoredUser[]
+    return JSON.parse(process.env.AUTH_USERS || '[]') as StoredUser[]
   } catch {
-    console.error('users.json の読み込みに失敗しました')
+    console.error('AUTH_USERS の解析に失敗しました')
     return []
   }
 }
