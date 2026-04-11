@@ -7,7 +7,6 @@ export async function middleware(req: NextRequest) {
   // 認証関連・静的アセットはスルー
   if (
     pathname.startsWith('/api/auth') ||
-    pathname.startsWith('/api/debug') ||
     pathname.startsWith('/login') ||
     pathname.startsWith('/_next') ||
     pathname === '/favicon.ico'
