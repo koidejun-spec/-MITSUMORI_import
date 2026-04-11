@@ -1,32 +1,28 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { getToken } from 'next-auth/jwt'
 
-export function middleware(req: NextRequest) {
-  const user = process.env.BASIC_AUTH_USER
-  const password = process.env.BASIC_AUTH_PASSWORD
+export async function middleware(req: NextRequest) {
+  const { pathname } = req.nextUrl
 
-  // 認証情報が未設定の場合はスルー（ローカル開発で未設定時の安全策）
-  if (!user || !password) {
+  // 認証関連・静的アセットはスルー
+  if (
+    pathname.startsWith('/api/auth') ||
+    pathname.startsWith('/login') ||
+    pathname.startsWith('/_next') ||
+    pathname === '/favicon.ico'
+  ) {
     return NextResponse.next()
   }
 
-  const authHeader = req.headers.get('authorization')
+  const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET })
 
-  if (authHeader) {
-    const base64 = authHeader.replace('Basic ', '')
-    const decoded = Buffer.from(base64, 'base64').toString('utf-8')
-    const [inputUser, inputPassword] = decoded.split(':')
-
-    if (inputUser === user && inputPassword === password) {
-      return NextResponse.next()
-    }
+  if (!token) {
+    const loginUrl = new URL('/login', req.url)
+    loginUrl.searchParams.set('callbackUrl', req.url)
+    return NextResponse.redirect(loginUrl)
   }
 
-  return new NextResponse('Unauthorized', {
-    status: 401,
-    headers: {
-      'WWW-Authenticate': 'Basic realm="Mitsumori Tool"',
-    },
-  })
+  return NextResponse.next()
 }
 
 export const config = {

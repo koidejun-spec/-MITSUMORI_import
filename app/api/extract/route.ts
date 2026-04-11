@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { getServerSession } from 'next-auth'
+import { authOptions } from '@/lib/auth'
 import { ProcessingResult } from '@/lib/types'
 import { processExcel } from '@/lib/extractors/excel'
 import { processPDF } from '@/lib/extractors/pdf'
@@ -26,6 +28,11 @@ async function processFile(file: File): Promise<ProcessingResult> {
 }
 
 export async function POST(req: NextRequest) {
+  const session = await getServerSession(authOptions)
+  if (!session) {
+    return NextResponse.json({ error: '認証が必要です' }, { status: 401 })
+  }
+
   try {
     const formData = await req.formData()
     const files = formData.getAll('files') as File[]

@@ -81,6 +81,7 @@ export function useReviewItems(
       reviewStatus: allWarnings.length > 0 || confidence !== 'high' ? 'warning' : 'ok',
       warnings: allWarnings,
       excluded: false,
+      mergedFrom: targetItems,
     }
 
     const targetIds = new Set(targetItems.map((i) => i.id))
@@ -99,5 +100,19 @@ export function useReviewItems(
     onUpdate(newItems)
   }
 
-  return { update, updateAmount, toggleExclude, applyBulkCategory, mergeCategory }
+  function unmergeItem(id: string) {
+    const target = items.find((i) => i.id === id)
+    if (!target?.mergedFrom) return
+    const newItems: EstimateItem[] = []
+    for (const item of items) {
+      if (item.id === id) {
+        newItems.push(...target.mergedFrom)
+      } else {
+        newItems.push(item)
+      }
+    }
+    onUpdate(newItems)
+  }
+
+  return { update, updateAmount, toggleExclude, applyBulkCategory, mergeCategory, unmergeItem }
 }

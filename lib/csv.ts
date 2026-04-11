@@ -1,5 +1,50 @@
 import { EstimateItem } from './types'
 
+/** カテゴリ単位でまとめたCSV出力用のアイテムリストを生成（非破壊） */
+export function buildOutputItems(items: EstimateItem[], collapsedCategories: Set<string>): EstimateItem[] {
+  if (collapsedCategories.size === 0) return items
+
+  const result: EstimateItem[] = []
+  const processedCats = new Set<string>()
+
+  for (const item of items) {
+    const cat = item.category ?? '未分類'
+    if (!collapsedCategories.has(cat)) {
+      result.push(item)
+      continue
+    }
+    if (processedCats.has(cat)) continue
+    processedCats.add(cat)
+
+    const catItems = items.filter((i) => (i.category ?? '未分類') === cat)
+    const totalAmount = catItems.reduce((sum, i) => sum + (i.amount ?? 0), 0)
+    const totalSelling = catItems.reduce((sum, i) => {
+      const raw = i.sellingUnitPrice != null && i.quantity != null
+        ? i.sellingUnitPrice * i.quantity
+        : (i.sellingUnitPrice ?? 0)
+      return sum + Math.round(raw)
+    }, 0)
+
+    result.push({
+      ...catItems[0],
+      id: `summary-${cat}`,
+      itemName: cat,
+      specification: catItems.map((i) => i.itemName).filter(Boolean).join('、'),
+      quantity: 1,
+      unit: '式',
+      unitPrice: totalAmount,
+      amount: totalAmount,
+      costPrice: totalAmount,
+      sellingUnitPrice: totalSelling,
+      sellingUnitPriceEdited: false,
+      remarks: `${catItems.length}件まとめ`,
+      excluded: false,
+    })
+  }
+
+  return result
+}
+
 function escapeCSV(value: string | number | null | undefined): string {
   const str = value == null ? '' : String(value)
   if (str.includes(',') || str.includes('"') || str.includes('\n') || str.includes('\r')) {

@@ -1,5 +1,6 @@
 'use client'
 
+import { signOut } from 'next-auth/react'
 import { useEstimateFlow } from '@/hooks/useEstimateFlow'
 import StepIndicator from '@/components/StepIndicator'
 import FileUpload from '@/components/FileUpload'
@@ -30,6 +31,8 @@ export default function Home() {
     handleWarningDecision,
     handleDownload,
     handleReset,
+    collapsedCategories,
+    toggleCategoryCollapse,
     handleRoundingModeChange,
     handleMarkupSettingsChange,
   } = useEstimateFlow()
@@ -61,6 +64,12 @@ export default function Home() {
                 <circle cx="12" cy="12" r="3"/>
                 <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
               </svg>
+            </button>
+            <button
+              onClick={() => signOut()}
+              className="text-xs text-gray-400 hover:text-gray-600 px-2 py-1.5 rounded-lg hover:bg-gray-100 transition-colors"
+            >
+              ログアウト
             </button>
           </div>
         </div>
@@ -143,7 +152,14 @@ export default function Home() {
               </div>
             ) : (
               <>
-                <ReviewTable items={items} onUpdate={setItems} roundingMode={roundingMode} markupSettings={markupSettings} />
+                <ReviewTable
+                  items={items}
+                  onUpdate={setItems}
+                  roundingMode={roundingMode}
+                  markupSettings={markupSettings}
+                  collapsedCategories={collapsedCategories}
+                  onToggleCategoryCollapse={toggleCategoryCollapse}
+                />
 
                 <div className="mt-8 bg-white border border-gray-200 rounded-2xl p-6 text-center shadow-sm">
                   <p className="text-sm text-gray-500 mb-4">

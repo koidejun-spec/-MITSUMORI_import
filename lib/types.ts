@@ -26,6 +26,7 @@ export interface EstimateItem {
   reviewStatus: 'ok' | 'warning' | 'error'
   warnings: string[]
   excluded: boolean
+  mergedFrom?: EstimateItem[]            // 統合元の明細（元に戻す用）
 }
 
 export interface TaxWarningData {
