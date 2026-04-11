@@ -7,6 +7,15 @@ interface StoredUser {
 }
 
 function getUsers(): StoredUser[] {
+  // 個別環境変数から読む（JSON不要）
+  const email = process.env.AUTH_USER_EMAIL
+  const name = process.env.AUTH_USER_NAME
+  const passwordHash = process.env.AUTH_USER_HASH
+  if (email && name && passwordHash) {
+    return [{ email, name, passwordHash }]
+  }
+
+  // フォールバック: AUTH_USERS JSON
   try {
     return JSON.parse(process.env.AUTH_USERS || '[]') as StoredUser[]
   } catch {
