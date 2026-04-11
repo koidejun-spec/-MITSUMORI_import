@@ -1,0 +1,39 @@
+{
+  "description": "信頼度低・金額不明：要確認フラグと原価空欄",
+  "input": {
+    "vendorName": "伊藤内装",
+    "totalAmount": null,
+    "hasTaxIncluded": false,
+    "items": [
+      {
+        "category": "内装工事",
+        "itemName": "CF貼り",
+        "specification": "長尺塩ビシート",
+        "quantity": 80,
+        "unit": "㎡",
+        "unitPrice": 2800,
+        "amount": 224000,
+        "confidence": "high",
+        "warnings": []
+      },
+      {
+        "category": null,
+        "itemName": "諸経費",
+        "specification": "",
+        "quantity": null,
+        "unit": "式",
+        "unitPrice": null,
+        "amount": null,
+        "confidence": "low",
+        "warnings": ["掛率・金額要確認"]
+      }
+    ]
+  },
+  "assertions": [
+    { "path": "items[0].reviewStatus", "eq": "ok" },
+    { "path": "items[1].costPrice",    "eq": null,      "note": "金額不明→原価空欄" },
+    { "path": "items[1].reviewStatus", "eq": "warning", "note": "low confidence→要確認" },
+    { "path": "items[1].category",     "eq": null,      "note": "カテゴリnull" },
+    { "path": "globalWarnings.length", "eq": 0 }
+  ]
+}

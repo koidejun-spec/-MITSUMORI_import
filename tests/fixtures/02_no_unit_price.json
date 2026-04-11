@@ -1,0 +1,52 @@
+{
+  "description": "単価なし：数量×金額から逆算",
+  "input": {
+    "vendorName": "鈴木塗装",
+    "totalAmount": 320000,
+    "hasTaxIncluded": false,
+    "items": [
+      {
+        "category": "塗装工事",
+        "itemName": "外壁塗装",
+        "specification": "OP2回塗り",
+        "quantity": 120,
+        "unit": "㎡",
+        "unitPrice": null,
+        "amount": 360000,
+        "confidence": "medium",
+        "warnings": []
+      },
+      {
+        "category": "塗装工事",
+        "itemName": "建具塗装",
+        "specification": "OP1回塗り",
+        "quantity": null,
+        "unit": "㎡",
+        "unitPrice": null,
+        "amount": 80000,
+        "confidence": "medium",
+        "warnings": []
+      },
+      {
+        "category": "建具工事",
+        "itemName": "アルミサッシ",
+        "specification": "W1200×H1100",
+        "quantity": 4,
+        "unit": "ヶ所",
+        "unitPrice": null,
+        "amount": 320000,
+        "confidence": "high",
+        "warnings": []
+      }
+    ]
+  },
+  "assertions": [
+    { "path": "items[0].costPrice", "eq": 3000,   "note": "360000÷120=3000 逆算" },
+    { "path": "items[0].reviewStatus", "eq": "warning", "note": "逆算なので要確認" },
+    { "path": "items[0].warnings", "includes": "逆算", "note": "逆算警告が入る" },
+    { "path": "items[1].costPrice", "eq": 80000,  "note": "数量なし→金額をそのまま" },
+    { "path": "items[1].warnings", "includes": "金額をそのまま" },
+    { "path": "items[2].costPrice", "eq": 80000,  "note": "320000÷4=80000 逆算" },
+    { "path": "items[2].warnings", "includes": "逆算" }
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  "description": "単位が「式」：金額をそのまま原価に",
+  "input": {
+    "vendorName": "佐藤設備",
+    "totalAmount": 580000,
+    "hasTaxIncluded": false,
+    "items": [
+      {
+        "category": "電気工事",
+        "itemName": "分電盤交換",
+        "specification": "50A主幹",
+        "quantity": 1,
+        "unit": "式",
+        "unitPrice": null,
+        "amount": 180000,
+        "confidence": "high",
+        "warnings": []
+      },
+      {
+        "category": "電気工事",
+        "itemName": "コンセント増設",
+        "specification": "2口×5ヶ所",
+        "quantity": null,
+        "unit": "式",
+        "unitPrice": null,
+        "amount": 400000,
+        "confidence": "high",
+        "warnings": []
+      }
+    ]
+  },
+  "assertions": [
+    { "path": "items[0].costPrice", "eq": 180000, "note": "式→金額をそのまま" },
+    { "path": "items[1].costPrice", "eq": 400000, "note": "式→金額をそのまま" },
+    { "path": "items[0].warnings", "includes": "金額をそのまま" },
+    { "path": "globalWarnings.length", "eq": 0 }
+  ]
+}

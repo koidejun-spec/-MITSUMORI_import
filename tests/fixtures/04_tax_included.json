@@ -1,0 +1,26 @@
+{
+  "description": "税込フラグ：globalWarningにtaxが追加される",
+  "input": {
+    "vendorName": "田中建材",
+    "totalAmount": 300000,
+    "hasTaxIncluded": true,
+    "items": [
+      {
+        "category": "材料費",
+        "itemName": "コンクリートブロック",
+        "specification": "C種 100mm",
+        "quantity": 200,
+        "unit": "個",
+        "unitPrice": 1500,
+        "amount": 300000,
+        "confidence": "high",
+        "warnings": []
+      }
+    ]
+  },
+  "assertions": [
+    { "path": "items[0].costPrice", "eq": 1500 },
+    { "path": "globalWarnings.length", "eq": 1 },
+    { "path": "globalWarnings[0].type", "eq": "tax", "note": "税込警告が出る" }
+  ]
+}

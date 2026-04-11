@@ -1,0 +1,37 @@
+{
+  "description": "値引き：マイナス金額が正しく扱われる",
+  "input": {
+    "vendorName": "松本工務店",
+    "totalAmount": 472400,
+    "hasTaxIncluded": false,
+    "items": [
+      {
+        "category": "左官工事",
+        "itemName": "タイル貼り",
+        "specification": "300角",
+        "quantity": 60,
+        "unit": "㎡",
+        "unitPrice": 8000,
+        "amount": 480000,
+        "confidence": "high",
+        "warnings": []
+      },
+      {
+        "category": "調整",
+        "itemName": "値引き",
+        "specification": "",
+        "quantity": null,
+        "unit": "式",
+        "unitPrice": null,
+        "amount": -7600,
+        "confidence": "high",
+        "warnings": []
+      }
+    ]
+  },
+  "assertions": [
+    { "path": "items[1].costPrice", "eq": -7600, "note": "マイナス値がそのまま原価に入る" },
+    { "path": "items[1].reviewStatus", "eq": "warning", "note": "金額そのままの警告あり" },
+    { "path": "globalWarnings.length", "eq": 0,  "note": "合計一致（480000-7600=472400）" }
+  ]
+}

@@ -1,0 +1,41 @@
+{
+  "description": "標準：単価あり・全項目揃い",
+  "input": {
+    "vendorName": "山田内装工業",
+    "totalAmount": 400600,
+    "hasTaxIncluded": false,
+    "items": [
+      {
+        "category": "左官工事",
+        "itemName": "モルタル塗り",
+        "specification": "厚20mm",
+        "quantity": 45.5,
+        "unit": "㎡",
+        "unitPrice": 3200,
+        "amount": 145600,
+        "confidence": "high",
+        "warnings": []
+      },
+      {
+        "category": "塗装工事",
+        "itemName": "外壁塗装",
+        "specification": "シリコン2回塗り",
+        "quantity": 85,
+        "unit": "㎡",
+        "unitPrice": 3000,
+        "amount": 255000,
+        "confidence": "high",
+        "warnings": []
+      }
+    ]
+  },
+  "assertions": [
+    { "path": "items.length",       "eq": 2 },
+    { "path": "items[0].costPrice", "eq": 3200,      "note": "単価あり→そのまま" },
+    { "path": "items[1].costPrice", "eq": 3000,      "note": "単価あり→そのまま" },
+    { "path": "items[0].reviewStatus", "eq": "ok" },
+    { "path": "items[1].reviewStatus", "eq": "ok" },
+    { "path": "items[0].category",  "eq": "左官工事" },
+    { "path": "globalWarnings.length", "eq": 0 }
+  ]
+}

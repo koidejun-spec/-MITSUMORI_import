@@ -1,0 +1,25 @@
+{
+  "description": "バグ対策：カテゴリに文字列'null'が入った場合nullとして扱う",
+  "input": {
+    "vendorName": "渡辺電設",
+    "totalAmount": 150000,
+    "hasTaxIncluded": false,
+    "items": [
+      {
+        "category": "null",
+        "itemName": "照明器具取付",
+        "specification": "LED ダウンライト",
+        "quantity": 10,
+        "unit": "ヶ所",
+        "unitPrice": 15000,
+        "amount": 150000,
+        "confidence": "high",
+        "warnings": []
+      }
+    ]
+  },
+  "assertions": [
+    { "path": "items[0].category", "eq": null, "note": "文字列'null'→null変換" },
+    { "path": "items[0].costPrice", "eq": 15000 }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "description": "端数処理・切り捨て：2000÷3=666.666→666",
+  "roundingMode": "floor",
+  "input": {
+    "vendorName": "山田工務店",
+    "totalAmount": null,
+    "hasTaxIncluded": false,
+    "items": [
+      {
+        "category": "電気工事",
+        "itemName": "配線工事",
+        "specification": "CV2.0×3C",
+        "quantity": 3,
+        "unit": "m",
+        "unitPrice": null,
+        "amount": 2000,
+        "confidence": "high",
+        "warnings": []
+      }
+    ]
+  },
+  "assertions": [
+    { "path": "items[0].costPrice", "eq": 666, "note": "floor(2000÷3)=floor(666.666)=666" }
+  ]
+}

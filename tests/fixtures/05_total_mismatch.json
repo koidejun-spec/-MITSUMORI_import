@@ -1,0 +1,37 @@
+{
+  "description": "金額不一致：PDF記載合計と抽出合計が異なる",
+  "input": {
+    "vendorName": "高橋建設",
+    "totalAmount": 1000000,
+    "hasTaxIncluded": false,
+    "items": [
+      {
+        "category": "基礎工事",
+        "itemName": "根切り",
+        "specification": "",
+        "quantity": 50,
+        "unit": "㎡",
+        "unitPrice": 5000,
+        "amount": 250000,
+        "confidence": "high",
+        "warnings": []
+      },
+      {
+        "category": "基礎工事",
+        "itemName": "捨てコン打設",
+        "specification": "厚50mm",
+        "quantity": 50,
+        "unit": "㎡",
+        "unitPrice": 4000,
+        "amount": 200000,
+        "confidence": "high",
+        "warnings": []
+      }
+    ]
+  },
+  "assertions": [
+    { "path": "globalWarnings.length", "eq": 1 },
+    { "path": "globalWarnings[0].type", "eq": "total_mismatch", "note": "差額550000円→警告" },
+    { "path": "globalWarnings[0].data.difference", "eq": 550000 }
+  ]
+}
