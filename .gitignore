@@ -38,5 +38,3 @@ next-env.d.ts
 # claude code
 .claude/
 
-# misnamed env file
-UsersDW105Desktopestimate-tool.env.local
