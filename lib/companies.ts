@@ -14,6 +14,26 @@ export interface CompanyWithUsage extends Company {
   last_used_at: string | null
 }
 
+export async function createCompany(name: string, email: string, passwordHash: string): Promise<void> {
+  await supabase.from('companies').insert({ name, email, password_hash: passwordHash })
+}
+
+export async function updateCompany(id: string, name: string, email: string): Promise<void> {
+  await supabase.from('companies').update({ name, email }).eq('id', id)
+}
+
+export async function deleteCompany(id: string): Promise<void> {
+  await supabase.from('companies').delete().eq('id', id)
+}
+
+export async function toggleCompanyStatus(id: string, isActive: boolean): Promise<void> {
+  await supabase.from('companies').update({ is_active: isActive }).eq('id', id)
+}
+
+export async function updatePassword(id: string, passwordHash: string): Promise<void> {
+  await supabase.from('companies').update({ password_hash: passwordHash }).eq('id', id)
+}
+
 export async function getCompanyByEmail(email: string): Promise<Company | null> {
   const { data, error } = await supabase
     .from('companies')
