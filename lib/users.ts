@@ -1,39 +1,32 @@
 import bcrypt from 'bcryptjs'
+import { getCompanyByEmail } from './companies'
 
-interface StoredUser {
-  email: string
-  name: string
-  passwordHash: string
-}
-
-function getUsers(): StoredUser[] {
-  // 個別環境変数から読む（JSON不要）
+function getAdminUser(): { email: string; name: string; passwordHash: string } | null {
   const email = process.env.AUTH_USER_EMAIL
   const name = process.env.AUTH_USER_NAME
   const passwordHash = process.env.AUTH_USER_HASH
-  if (email && name && passwordHash) {
-    return [{ email, name, passwordHash }]
-  }
+  if (email && name && passwordHash) return { email, name, passwordHash }
+  return null
+}
 
-  // フォールバック: AUTH_USERS JSON
-  try {
-    return JSON.parse(process.env.AUTH_USERS || '[]') as StoredUser[]
-  } catch {
-    console.error('AUTH_USERS の解析に失敗しました')
-    return []
-  }
+export function isAdmin(email: string): boolean {
+  return email === process.env.AUTH_USER_EMAIL
 }
 
 export async function verifyCredentials(
   email: string,
   password: string,
 ): Promise<{ email: string; name: string } | null> {
-  const users = getUsers()
-  const user = users.find((u) => u.email === email)
-  if (!user) return null
+  // 管理者（env vars）
+  const admin = getAdminUser()
+  if (admin && admin.email === email) {
+    const valid = await bcrypt.compare(password, admin.passwordHash)
+    return valid ? { email: admin.email, name: admin.name } : null
+  }
 
-  const valid = await bcrypt.compare(password, user.passwordHash)
-  if (!valid) return null
-
-  return { email: user.email, name: user.name }
+  // 利用企業（Supabase）
+  const company = await getCompanyByEmail(email)
+  if (!company) return null
+  const valid = await bcrypt.compare(password, company.password_hash)
+  return valid ? { email: company.email, name: company.name } : null
 }

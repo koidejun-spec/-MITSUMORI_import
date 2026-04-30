@@ -22,6 +22,11 @@ export async function middleware(req: NextRequest) {
     return NextResponse.redirect(loginUrl)
   }
 
+  // /admin は管理者のみ
+  if (pathname.startsWith('/admin') && token.email !== process.env.AUTH_USER_EMAIL) {
+    return NextResponse.redirect(new URL('/', req.url))
+  }
+
   return NextResponse.next()
 }
 

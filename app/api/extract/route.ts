@@ -5,6 +5,7 @@ import { ProcessingResult } from '@/lib/types'
 import { processExcel } from '@/lib/extractors/excel'
 import { processPDF } from '@/lib/extractors/pdf'
 import { processImage } from '@/lib/extractors/image'
+import { logUsage } from '@/lib/companies'
 
 export const maxDuration = 120
 
@@ -54,6 +55,8 @@ export async function POST(req: NextRequest) {
         })
       }
     }
+
+    await logUsage(session.user?.email ?? 'unknown', files.length)
 
     return NextResponse.json({ results })
   } catch (err) {
