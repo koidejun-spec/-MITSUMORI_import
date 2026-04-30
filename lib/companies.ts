@@ -15,12 +15,13 @@ export interface CompanyWithUsage extends Company {
 }
 
 export async function getCompanyByEmail(email: string): Promise<Company | null> {
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from('companies')
     .select('*')
     .eq('email', email)
     .eq('is_active', true)
     .single()
+  if (error) console.error('[Supabase] getCompanyByEmail error:', error.message, error.code)
   return data
 }
 
