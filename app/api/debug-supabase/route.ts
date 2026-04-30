@@ -5,7 +5,7 @@ export async function GET() {
   const url = process.env.SUPABASE_URL
   const key = process.env.SUPABASE_SERVICE_KEY
 
-  const { data, error } = await supabase.from('companies').select('email, name')
+  const { data, error } = await supabase.from('companies').select('email, name, password_hash')
 
   return NextResponse.json({
     url_set: !!url,
