@@ -21,7 +21,6 @@ export async function getCompanyByEmail(email: string): Promise<Company | null> 
     .eq('email', email)
     .eq('is_active', true)
     .single()
-  if (error) console.error('[Supabase] getCompanyByEmail error:', error.message, error.code)
   return data
 }
 
