@@ -25,7 +25,9 @@ export async function verifyCredentials(
   }
 
   // 利用企業（Supabase）
+  console.log('[auth] Supabase lookup for:', email)
   const company = await getCompanyByEmail(email)
+  console.log('[auth] company found:', !!company)
   if (!company) return null
   const valid = await bcrypt.compare(password, company.password_hash)
   return valid ? { email: company.email, name: company.name } : null
