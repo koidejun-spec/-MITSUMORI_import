@@ -90,7 +90,7 @@ export default function ReviewTableRow({
         />
       </td>
 
-      <td className="px-3 py-2 pl-6">
+      <td className="px-3 py-2">
         <div>
           <input
             type="text"
@@ -146,7 +146,7 @@ export default function ReviewTableRow({
           type="number"
           value={item.quantity ?? ''}
           onChange={(e) => onUpdate(item.id, 'quantity', e.target.value ? Number(e.target.value) : null)}
-          className="w-20 text-xs text-right border border-slate-200 rounded px-1.5 py-1 bg-transparent focus:outline-none focus:ring-1 focus:ring-teal-500"
+          className="w-16 text-xs text-right border border-slate-200 rounded px-1.5 py-1 bg-transparent focus:outline-none focus:ring-1 focus:ring-teal-500"
         />
       </td>
 
@@ -173,7 +173,7 @@ export default function ReviewTableRow({
           type="number"
           value={item.amount ?? ''}
           onChange={(e) => onUpdateAmount(item.id, e.target.value ? Number(e.target.value) : null)}
-          className="w-28 text-xs text-right border border-slate-200 rounded px-1.5 py-1 bg-transparent focus:outline-none focus:ring-1 focus:ring-teal-500"
+          className="w-24 text-xs text-right border border-slate-200 rounded px-1.5 py-1 bg-transparent focus:outline-none focus:ring-1 focus:ring-teal-500"
         />
       </td>
 
@@ -182,7 +182,7 @@ export default function ReviewTableRow({
           type="number"
           value={item.sellingUnitPrice ?? ''}
           onChange={(e) => onSellingPriceEdit(item.id, e.target.value ? Number(e.target.value) : null)}
-          className={`w-28 text-xs text-right border rounded px-1.5 py-1 focus:outline-none focus:ring-1
+          className={`w-24 text-xs text-right border rounded px-1.5 py-1 focus:outline-none focus:ring-1
             ${item.sellingUnitPriceEdited
               ? 'border-orange-400 bg-orange-50 focus:ring-orange-400'
               : 'border-teal-200 bg-teal-50 focus:ring-teal-500'}`}

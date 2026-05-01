@@ -196,9 +196,9 @@ export default function ReviewTable({ items, onUpdate, roundingMode, profitBase,
                   />
                 </th>
                 <th className="px-3 py-3 text-left text-xs font-semibold text-white whitespace-nowrap">No</th>
-                <th className="px-3 py-3 text-left text-xs font-semibold text-white whitespace-nowrap min-w-[120px]">カテゴリ</th>
-                <th className="px-3 py-3 text-left text-xs font-semibold text-white whitespace-nowrap min-w-[160px]">名称</th>
-                <th className="px-3 py-3 text-left text-xs font-semibold text-white whitespace-nowrap min-w-[140px]">内容・仕様</th>
+                <th className="px-3 py-3 text-left text-xs font-semibold text-white whitespace-nowrap min-w-[90px]">カテゴリ</th>
+                <th className="px-3 py-3 text-left text-xs font-semibold text-white whitespace-nowrap min-w-[120px]">名称</th>
+                <th className="px-3 py-3 text-left text-xs font-semibold text-white whitespace-nowrap min-w-[110px]">内容・仕様</th>
                 <th className="px-3 py-3 text-right text-xs font-semibold text-white whitespace-nowrap">数量</th>
                 <th className="px-3 py-3 text-left text-xs font-semibold text-white whitespace-nowrap">単位</th>
                 <th className="px-3 py-3 text-right text-xs font-semibold text-white whitespace-nowrap">原価単価</th>
