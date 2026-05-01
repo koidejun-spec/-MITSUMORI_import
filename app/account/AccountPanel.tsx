@@ -51,21 +51,21 @@ export default function AccountPanel({ name, email }: { name: string; email: str
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-8">
+    <div className="min-h-screen bg-slate-50 p-8">
       <div className="max-w-lg mx-auto">
-        <h1 className="text-xl font-bold text-gray-900 mb-6">アカウント設定</h1>
+        <h1 className="text-xl font-bold text-slate-800 mb-6">アカウント設定</h1>
 
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-          <div className="flex border-b border-gray-200">
+        <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+          <div className="flex border-b border-slate-200">
             <button
               onClick={() => { setTab('info'); setMessage(null) }}
-              className={`flex-1 py-3 text-sm font-medium ${tab === 'info' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500'}`}
+              className={`flex-1 py-3 text-sm font-medium transition-colors ${tab === 'info' ? 'text-teal-600 border-b-2 border-teal-600' : 'text-slate-500 hover:text-slate-700'}`}
             >
               アカウント情報
             </button>
             <button
               onClick={() => { setTab('password'); setMessage(null) }}
-              className={`flex-1 py-3 text-sm font-medium ${tab === 'password' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500'}`}
+              className={`flex-1 py-3 text-sm font-medium transition-colors ${tab === 'password' ? 'text-teal-600 border-b-2 border-teal-600' : 'text-slate-500 hover:text-slate-700'}`}
             >
               パスワード変更
             </button>
@@ -75,27 +75,27 @@ export default function AccountPanel({ name, email }: { name: string; email: str
             {tab === 'info' && (
               <>
                 <div>
-                  <label className="block text-xs font-medium text-gray-500 mb-1">会社名</label>
-                  <p className="text-sm text-gray-900 px-3 py-2 bg-gray-50 rounded-lg">{name}</p>
+                  <label className="block text-xs font-medium text-slate-500 mb-1">会社名</label>
+                  <p className="text-sm text-slate-800 px-3 py-2 bg-slate-50 rounded-lg border border-slate-100">{name}</p>
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-gray-700 mb-1">メールアドレス</label>
+                  <label className="block text-xs font-medium text-slate-700 mb-1">メールアドレス</label>
                   <input
                     value={newEmail}
                     onChange={(e) => setNewEmail(e.target.value)}
                     type="email"
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                    className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
                   />
                 </div>
                 {message && (
-                  <p className={`text-xs ${message.type === 'ok' ? 'text-green-600' : 'text-red-600'}`}>
+                  <p className={`text-xs ${message.type === 'ok' ? 'text-teal-600' : 'text-red-600'}`}>
                     {message.text}
                   </p>
                 )}
                 <button
                   onClick={handleEmailSave}
                   disabled={loading || newEmail === email}
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white text-sm py-2 rounded-lg disabled:bg-gray-300"
+                  className="w-full bg-teal-600 hover:bg-teal-700 text-white text-sm py-2.5 rounded-lg disabled:bg-slate-200 disabled:text-slate-400 transition-colors font-medium"
                 >
                   {loading ? '保存中...' : '変更を保存'}
                 </button>
@@ -105,32 +105,32 @@ export default function AccountPanel({ name, email }: { name: string; email: str
             {tab === 'password' && (
               <>
                 <div>
-                  <label className="block text-xs font-medium text-gray-700 mb-1">現在のパスワード</label>
+                  <label className="block text-xs font-medium text-slate-700 mb-1">現在のパスワード</label>
                   <input
                     value={currentPassword}
                     onChange={(e) => setCurrentPassword(e.target.value)}
                     type="password"
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                    className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-gray-700 mb-1">新しいパスワード</label>
+                  <label className="block text-xs font-medium text-slate-700 mb-1">新しいパスワード</label>
                   <input
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
                     type="password"
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                    className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
                   />
                 </div>
                 {message && (
-                  <p className={`text-xs ${message.type === 'ok' ? 'text-green-600' : 'text-red-600'}`}>
+                  <p className={`text-xs ${message.type === 'ok' ? 'text-teal-600' : 'text-red-600'}`}>
                     {message.text}
                   </p>
                 )}
                 <button
                   onClick={handlePasswordSave}
                   disabled={loading || !currentPassword || !newPassword}
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white text-sm py-2 rounded-lg disabled:bg-gray-300"
+                  className="w-full bg-teal-600 hover:bg-teal-700 text-white text-sm py-2.5 rounded-lg disabled:bg-slate-200 disabled:text-slate-400 transition-colors font-medium"
                 >
                   {loading ? '変更中...' : 'パスワードを変更'}
                 </button>
@@ -140,7 +140,7 @@ export default function AccountPanel({ name, email }: { name: string; email: str
         </div>
 
         <div className="mt-4 text-center">
-          <a href="/" className="text-sm text-gray-500 hover:text-gray-700">← ツールに戻る</a>
+          <a href="/" className="text-sm text-slate-400 hover:text-slate-600">← ツールに戻る</a>
         </div>
       </div>
     </div>

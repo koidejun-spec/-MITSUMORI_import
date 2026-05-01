@@ -48,12 +48,11 @@ export default function ReviewTableRow({
     <tr
       ref={setNodeRef}
       style={style}
-      className={`${rowClass} hover:bg-black/[0.02] transition-colors border-t border-gray-100`}
+      className={`${rowClass} hover:bg-black/[0.02] transition-colors border-t border-slate-100`}
     >
-      {/* ドラッグハンドル */}
       <td className="px-1.5 py-2 text-center">
         <button
-          className="cursor-grab active:cursor-grabbing text-gray-300 hover:text-gray-500 touch-none p-0.5"
+          className="cursor-grab active:cursor-grabbing text-slate-300 hover:text-slate-500 touch-none p-0.5"
           {...attributes}
           {...listeners}
         >
@@ -68,40 +67,36 @@ export default function ReviewTableRow({
         </button>
       </td>
 
-      {/* チェックボックス */}
       <td className="px-2 py-2 text-center">
         <input
           type="checkbox"
           checked={selected}
           onChange={() => onToggleSelect(item.id)}
-          className="accent-blue-600"
+          className="accent-teal-600"
         />
       </td>
 
-      {/* No */}
-      <td className="px-3 py-2 text-gray-400 text-xs whitespace-nowrap">
+      <td className="px-3 py-2 text-slate-400 text-xs whitespace-nowrap">
         {item.excluded ? <s>{globalIndex + 1}</s> : globalIndex + 1}
       </td>
 
-      {/* カテゴリ */}
       <td className="px-3 py-2">
         <input
           type="text"
           value={item.category ?? ''}
           onChange={(e) => onUpdate(item.id, 'category', e.target.value || null)}
           placeholder="未分類"
-          className="w-full text-xs border border-gray-200 rounded px-1.5 py-1 bg-transparent focus:outline-none focus:ring-1 focus:ring-blue-400 placeholder-gray-300"
+          className="w-full text-xs border border-slate-200 rounded px-1.5 py-1 bg-transparent focus:outline-none focus:ring-1 focus:ring-teal-500 placeholder-slate-300"
         />
       </td>
 
-      {/* 名称 + バッジ */}
       <td className="px-3 py-2 pl-6">
         <div>
           <input
             type="text"
             value={item.itemName}
             onChange={(e) => onUpdate(item.id, 'itemName', e.target.value)}
-            className="w-full text-xs border border-gray-200 rounded px-1.5 py-1 bg-transparent focus:outline-none focus:ring-1 focus:ring-blue-400"
+            className="w-full text-xs border border-slate-200 rounded px-1.5 py-1 bg-transparent focus:outline-none focus:ring-1 focus:ring-teal-500"
           />
           {item.reviewStatus === 'ok' && itemHasBadges(item) ? (
             <span className="text-xs text-green-600 mt-0.5 block">✓ 確認済み</span>
@@ -132,62 +127,56 @@ export default function ReviewTableRow({
         </div>
       </td>
 
-      {/* 内容・仕様 */}
       <td className="px-3 py-2 relative group/spec">
         <input
           type="text"
           value={item.specification}
           onChange={(e) => onUpdate(item.id, 'specification', e.target.value)}
-          className="w-full text-xs border border-gray-200 rounded px-1.5 py-1 bg-transparent focus:outline-none focus:ring-1 focus:ring-blue-400 truncate"
+          className="w-full text-xs border border-slate-200 rounded px-1.5 py-1 bg-transparent focus:outline-none focus:ring-1 focus:ring-teal-500 truncate"
         />
         {item.specification && (
-          <div className="pointer-events-none absolute z-50 bottom-full left-0 mb-1 hidden group-hover/spec:block bg-gray-100 text-gray-600 border border-gray-200 text-xs rounded px-2.5 py-2 w-64 whitespace-pre-wrap shadow-md leading-relaxed">
+          <div className="pointer-events-none absolute z-50 bottom-full left-0 mb-1 hidden group-hover/spec:block bg-slate-100 text-slate-600 border border-slate-200 text-xs rounded px-2.5 py-2 w-64 whitespace-pre-wrap shadow-md leading-relaxed">
             {item.specification}
           </div>
         )}
       </td>
 
-      {/* 数量 */}
       <td className="px-3 py-2">
         <input
           type="number"
           value={item.quantity ?? ''}
           onChange={(e) => onUpdate(item.id, 'quantity', e.target.value ? Number(e.target.value) : null)}
-          className="w-20 text-xs text-right border border-gray-200 rounded px-1.5 py-1 bg-transparent focus:outline-none focus:ring-1 focus:ring-blue-400"
+          className="w-20 text-xs text-right border border-slate-200 rounded px-1.5 py-1 bg-transparent focus:outline-none focus:ring-1 focus:ring-teal-500"
         />
       </td>
 
-      {/* 単位 */}
       <td className="px-3 py-2">
         <input
           type="text"
           value={item.unit}
           onChange={(e) => onUpdate(item.id, 'unit', e.target.value)}
-          className="w-14 text-xs border border-gray-200 rounded px-1.5 py-1 bg-transparent focus:outline-none focus:ring-1 focus:ring-blue-400"
+          className="w-14 text-xs border border-slate-200 rounded px-1.5 py-1 bg-transparent focus:outline-none focus:ring-1 focus:ring-teal-500"
         />
       </td>
 
-      {/* 原価単価 */}
       <td className="px-3 py-2 text-right">
-        <span className="text-xs text-gray-500 whitespace-nowrap">
+        <span className="text-xs text-slate-500 whitespace-nowrap">
           {item.costPrice != null ? `¥${formatNum(item.costPrice)}` : ''}
         </span>
         {item.costPrice != null && item.quantity != null && item.unit !== '式' && (
-          <p className="text-xs text-gray-400 whitespace-nowrap">逆算</p>
+          <p className="text-xs text-slate-400 whitespace-nowrap">逆算</p>
         )}
       </td>
 
-      {/* 原価合計 */}
       <td className="px-3 py-2">
         <input
           type="number"
           value={item.amount ?? ''}
           onChange={(e) => onUpdateAmount(item.id, e.target.value ? Number(e.target.value) : null)}
-          className="w-28 text-xs text-right border border-gray-200 rounded px-1.5 py-1 bg-transparent focus:outline-none focus:ring-1 focus:ring-blue-400"
+          className="w-28 text-xs text-right border border-slate-200 rounded px-1.5 py-1 bg-transparent focus:outline-none focus:ring-1 focus:ring-teal-500"
         />
       </td>
 
-      {/* 売値単価 */}
       <td className="px-3 py-2">
         <input
           type="number"
@@ -196,16 +185,15 @@ export default function ReviewTableRow({
           className={`w-28 text-xs text-right border rounded px-1.5 py-1 focus:outline-none focus:ring-1
             ${item.sellingUnitPriceEdited
               ? 'border-orange-400 bg-orange-50 focus:ring-orange-400'
-              : 'border-blue-200 bg-blue-50 focus:ring-blue-500'}`}
+              : 'border-teal-200 bg-teal-50 focus:ring-teal-500'}`}
         />
         {item.sellingUnitPriceEdited && (
           <p className="text-xs text-orange-500 mt-0.5 whitespace-nowrap">✏ 編集済み</p>
         )}
       </td>
 
-      {/* 売値金額 */}
       <td className="px-3 py-2 text-right">
-        <span className="text-xs font-semibold text-blue-700 whitespace-nowrap">
+        <span className="text-xs font-semibold text-teal-700 whitespace-nowrap">
           {item.sellingUnitPrice != null && item.quantity != null
             ? `¥${formatNum(Math.round(item.sellingUnitPrice * item.quantity))}`
             : item.sellingUnitPrice != null
@@ -214,7 +202,6 @@ export default function ReviewTableRow({
         </span>
       </td>
 
-      {/* 備考 */}
       <td className="px-3 py-2">
         <div className="flex items-center gap-1">
           <input
@@ -222,12 +209,12 @@ export default function ReviewTableRow({
             value={item.remarks}
             onChange={(e) => onUpdate(item.id, 'remarks', e.target.value)}
             title={item.remarks}
-            className="w-full text-xs border border-gray-200 rounded px-1.5 py-1 bg-transparent focus:outline-none focus:ring-1 focus:ring-blue-400 truncate"
+            className="w-full text-xs border border-slate-200 rounded px-1.5 py-1 bg-transparent focus:outline-none focus:ring-1 focus:ring-teal-500 truncate"
           />
           {item.remarks && (
             <button
               onClick={() => onExpandCell(item.id, 'remarks')}
-              className="flex-shrink-0 text-gray-300 hover:text-blue-500 transition-colors"
+              className="flex-shrink-0 text-slate-300 hover:text-teal-500 transition-colors"
               title="全文表示"
             >
               <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>
@@ -236,12 +223,11 @@ export default function ReviewTableRow({
         </div>
       </td>
 
-      {/* 除外 */}
       <td className="px-3 py-2 text-center">
         <button
           onClick={() => onToggleExclude(item.id)}
           className={`text-xs px-2 py-1 rounded transition-colors font-medium
-            ${item.excluded ? 'bg-gray-200 text-gray-600 hover:bg-gray-300' : 'bg-red-100 text-red-600 hover:bg-red-200'}`}
+            ${item.excluded ? 'bg-slate-200 text-slate-600 hover:bg-slate-300' : 'bg-red-100 text-red-600 hover:bg-red-200'}`}
         >
           {item.excluded ? '戻す' : '除外'}
         </button>

@@ -76,40 +76,40 @@ export default function AdminPanel({ initialCompanies }: { initialCompanies: Com
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-8">
+    <div className="min-h-screen bg-slate-50 p-8">
       <div className="max-w-5xl mx-auto">
         <div className="flex items-center justify-between mb-6">
-          <h1 className="text-xl font-bold text-gray-900">利用企業ダッシュボード</h1>
+          <h1 className="text-xl font-bold text-slate-800">利用企業ダッシュボード</h1>
           <button
             onClick={() => setModal({ type: 'add' })}
-            className="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg"
+            className="bg-teal-600 hover:bg-teal-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
           >
             ＋ 企業追加
           </button>
         </div>
 
         {companies.length === 0 ? (
-          <p className="text-gray-500 text-sm">登録企業はありません</p>
+          <p className="text-slate-500 text-sm">登録企業はありません</p>
         ) : (
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+          <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
             <table className="w-full text-sm">
-              <thead className="bg-gray-50 border-b border-gray-200">
+              <thead className="bg-teal-700">
                 <tr>
-                  <th className="text-left px-6 py-3 text-xs font-medium text-gray-500">会社名</th>
-                  <th className="text-left px-6 py-3 text-xs font-medium text-gray-500">メール</th>
-                  <th className="text-right px-6 py-3 text-xs font-medium text-gray-500">抽出件数</th>
-                  <th className="text-left px-6 py-3 text-xs font-medium text-gray-500">最終利用</th>
-                  <th className="text-left px-6 py-3 text-xs font-medium text-gray-500">状態</th>
-                  <th className="text-left px-6 py-3 text-xs font-medium text-gray-500">操作</th>
+                  <th className="text-left px-6 py-3 text-xs font-semibold text-white">会社名</th>
+                  <th className="text-left px-6 py-3 text-xs font-semibold text-white">メール</th>
+                  <th className="text-right px-6 py-3 text-xs font-semibold text-white">抽出件数</th>
+                  <th className="text-left px-6 py-3 text-xs font-semibold text-white">最終利用</th>
+                  <th className="text-left px-6 py-3 text-xs font-semibold text-white">状態</th>
+                  <th className="text-left px-6 py-3 text-xs font-semibold text-white">操作</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100">
+              <tbody className="divide-y divide-slate-100">
                 {companies.map((company) => (
-                  <tr key={company.id} className="hover:bg-gray-50 transition-colors">
-                    <td className="px-6 py-4 font-medium text-gray-900">{company.name}</td>
-                    <td className="px-6 py-4 text-gray-500">{company.email}</td>
-                    <td className="px-6 py-4 text-right text-gray-900">{company.total_extractions}</td>
-                    <td className="px-6 py-4 text-gray-500">
+                  <tr key={company.id} className="hover:bg-slate-50 transition-colors">
+                    <td className="px-6 py-4 font-medium text-slate-800">{company.name}</td>
+                    <td className="px-6 py-4 text-slate-500">{company.email}</td>
+                    <td className="px-6 py-4 text-right text-slate-800">{company.total_extractions}</td>
+                    <td className="px-6 py-4 text-slate-500">
                       {company.last_used_at
                         ? formatDistanceToNow(new Date(company.last_used_at), { addSuffix: true, locale: ja })
                         : '未使用'}
@@ -117,10 +117,10 @@ export default function AdminPanel({ initialCompanies }: { initialCompanies: Com
                     <td className="px-6 py-4">
                       <button
                         onClick={() => handleToggle(company.id, !company.is_active)}
-                        className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
+                        className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium transition-colors ${
                           company.is_active
-                            ? 'bg-green-100 text-green-700'
-                            : 'bg-gray-100 text-gray-500'
+                            ? 'bg-teal-100 text-teal-700 hover:bg-teal-200'
+                            : 'bg-slate-100 text-slate-500 hover:bg-slate-200'
                         }`}
                       >
                         {company.is_active ? '有効' : '無効'}
@@ -130,7 +130,7 @@ export default function AdminPanel({ initialCompanies }: { initialCompanies: Com
                       <div className="flex gap-2">
                         <button
                           onClick={() => setModal({ type: 'edit', company })}
-                          className="text-xs text-blue-600 hover:underline"
+                          className="text-xs text-teal-600 hover:underline"
                         >
                           編集
                         </button>
@@ -158,7 +158,7 @@ export default function AdminPanel({ initialCompanies }: { initialCompanies: Com
 
       {modal && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-          <div className="bg-white rounded-2xl shadow-xl p-6 w-full max-w-sm mx-4">
+          <div className="bg-white rounded-xl shadow-xl p-6 w-full max-w-sm mx-4">
             {modal.type === 'add' && (
               <CompanyForm
                 title="企業追加"
@@ -218,26 +218,26 @@ function CompanyForm({
 
   return (
     <>
-      <h2 className="text-base font-bold text-gray-900 mb-4">{title}</h2>
+      <h2 className="text-base font-bold text-slate-800 mb-4">{title}</h2>
       <div className="space-y-3">
         <div>
-          <label className="block text-xs font-medium text-gray-700 mb-1">会社名</label>
-          <input value={name} onChange={(e) => setName(e.target.value)} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm" />
+          <label className="block text-xs font-medium text-slate-600 mb-1">会社名</label>
+          <input value={name} onChange={(e) => setName(e.target.value)} className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500" />
         </div>
         <div>
-          <label className="block text-xs font-medium text-gray-700 mb-1">メールアドレス</label>
-          <input value={email} onChange={(e) => setEmail(e.target.value)} type="email" className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm" />
+          <label className="block text-xs font-medium text-slate-600 mb-1">メールアドレス</label>
+          <input value={email} onChange={(e) => setEmail(e.target.value)} type="email" className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500" />
         </div>
         {showPassword && (
           <div>
-            <label className="block text-xs font-medium text-gray-700 mb-1">パスワード</label>
-            <input value={password} onChange={(e) => setPassword(e.target.value)} type="password" className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm" />
+            <label className="block text-xs font-medium text-slate-600 mb-1">パスワード</label>
+            <input value={password} onChange={(e) => setPassword(e.target.value)} type="password" className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500" />
           </div>
         )}
       </div>
       <div className="flex gap-2 mt-5">
-        <button onClick={onCancel} className="flex-1 border border-gray-300 text-gray-700 text-sm py-2 rounded-lg">キャンセル</button>
-        <button onClick={() => onSubmit(name, email, password)} disabled={loading} className="flex-1 bg-blue-600 hover:bg-blue-700 text-white text-sm py-2 rounded-lg disabled:bg-gray-300">
+        <button onClick={onCancel} className="flex-1 border border-slate-200 text-slate-600 text-sm py-2 rounded-lg hover:bg-slate-50">キャンセル</button>
+        <button onClick={() => onSubmit(name, email, password)} disabled={loading} className="flex-1 bg-teal-600 hover:bg-teal-700 text-white text-sm py-2 rounded-lg disabled:bg-slate-200 disabled:text-slate-400 transition-colors">
           {loading ? '処理中...' : '保存'}
         </button>
       </div>
@@ -254,15 +254,15 @@ function PasswordForm({ company, onSubmit, onCancel, loading }: {
   const [password, setPassword] = useState('')
   return (
     <>
-      <h2 className="text-base font-bold text-gray-900 mb-1">パスワードリセット</h2>
-      <p className="text-xs text-gray-500 mb-4">{company.name}</p>
+      <h2 className="text-base font-bold text-slate-800 mb-1">パスワードリセット</h2>
+      <p className="text-xs text-slate-500 mb-4">{company.name}</p>
       <div>
-        <label className="block text-xs font-medium text-gray-700 mb-1">新しいパスワード</label>
-        <input value={password} onChange={(e) => setPassword(e.target.value)} type="password" className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm" />
+        <label className="block text-xs font-medium text-slate-600 mb-1">新しいパスワード</label>
+        <input value={password} onChange={(e) => setPassword(e.target.value)} type="password" className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500" />
       </div>
       <div className="flex gap-2 mt-5">
-        <button onClick={onCancel} className="flex-1 border border-gray-300 text-gray-700 text-sm py-2 rounded-lg">キャンセル</button>
-        <button onClick={() => onSubmit(password)} disabled={loading} className="flex-1 bg-orange-600 hover:bg-orange-700 text-white text-sm py-2 rounded-lg disabled:bg-gray-300">
+        <button onClick={onCancel} className="flex-1 border border-slate-200 text-slate-600 text-sm py-2 rounded-lg hover:bg-slate-50">キャンセル</button>
+        <button onClick={() => onSubmit(password)} disabled={loading} className="flex-1 bg-orange-600 hover:bg-orange-700 text-white text-sm py-2 rounded-lg disabled:bg-slate-200 transition-colors">
           {loading ? '処理中...' : '変更'}
         </button>
       </div>
@@ -278,11 +278,11 @@ function DeleteConfirm({ company, onConfirm, onCancel, loading }: {
 }) {
   return (
     <>
-      <h2 className="text-base font-bold text-gray-900 mb-2">企業削除</h2>
-      <p className="text-sm text-gray-600 mb-4">「{company.name}」を削除しますか？この操作は取り消せません。</p>
+      <h2 className="text-base font-bold text-slate-800 mb-2">企業削除</h2>
+      <p className="text-sm text-slate-600 mb-4">「{company.name}」を削除しますか？この操作は取り消せません。</p>
       <div className="flex gap-2">
-        <button onClick={onCancel} className="flex-1 border border-gray-300 text-gray-700 text-sm py-2 rounded-lg">キャンセル</button>
-        <button onClick={onConfirm} disabled={loading} className="flex-1 bg-red-600 hover:bg-red-700 text-white text-sm py-2 rounded-lg disabled:bg-gray-300">
+        <button onClick={onCancel} className="flex-1 border border-slate-200 text-slate-600 text-sm py-2 rounded-lg hover:bg-slate-50">キャンセル</button>
+        <button onClick={onConfirm} disabled={loading} className="flex-1 bg-red-600 hover:bg-red-700 text-white text-sm py-2 rounded-lg disabled:bg-slate-200 transition-colors">
           {loading ? '削除中...' : '削除'}
         </button>
       </div>

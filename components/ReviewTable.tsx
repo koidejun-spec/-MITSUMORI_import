@@ -124,7 +124,6 @@ export default function ReviewTable({ items, onUpdate, roundingMode, profitBase,
 
   return (
     <div>
-      {/* All Clear バナー */}
       {allClear && (
         <div className="flex items-center gap-2 mb-3 px-4 py-2.5 bg-green-50 border border-green-300 rounded-lg">
           <span className="text-green-600 text-base">✓</span>
@@ -132,34 +131,33 @@ export default function ReviewTable({ items, onUpdate, roundingMode, profitBase,
         </div>
       )}
 
-      {/* 一括操作バー */}
       {showBulkInput ? (
-        <div className="flex items-center gap-3 mb-3 p-2 bg-blue-50 border border-blue-200 rounded-lg">
-          <span className="text-sm text-blue-700 font-medium">{selected.size}件選択中</span>
+        <div className="flex items-center gap-3 mb-3 p-2 bg-teal-50 border border-teal-200 rounded-lg">
+          <span className="text-sm text-teal-700 font-medium">{selected.size}件選択中</span>
           <div className="flex items-center gap-2">
             <input
               type="text"
               value={bulkCategory}
               onChange={(e) => setBulkCategory(e.target.value)}
               placeholder="カテゴリ名を入力"
-              className="text-sm border border-gray-300 rounded px-2 py-1 w-40"
+              className="text-sm border border-slate-200 rounded px-2 py-1 w-40"
               onKeyDown={(e) => e.key === 'Enter' && applyBulkCategory()}
               autoFocus
             />
-            <button onClick={applyBulkCategory} className="text-sm bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700">
+            <button onClick={applyBulkCategory} className="text-sm bg-teal-600 text-white px-3 py-1 rounded hover:bg-teal-700">
               適用
             </button>
-            <button onClick={() => { setShowBulkInput(false); setSelected(new Set()) }} className="text-sm text-gray-500 hover:text-gray-700">
+            <button onClick={() => { setShowBulkInput(false); setSelected(new Set()) }} className="text-sm text-slate-500 hover:text-slate-700">
               キャンセル
             </button>
           </div>
         </div>
       ) : selected.size > 0 ? (
-        <div className="flex items-center gap-3 mb-3 p-2 bg-blue-50 border border-blue-200 rounded-lg">
-          <span className="text-sm text-blue-700 font-medium">{selected.size}件選択中</span>
+        <div className="flex items-center gap-3 mb-3 p-2 bg-teal-50 border border-teal-200 rounded-lg">
+          <span className="text-sm text-teal-700 font-medium">{selected.size}件選択中</span>
           <button
             onClick={() => setShowBulkInput(true)}
-            className="text-sm bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700"
+            className="text-sm bg-teal-600 text-white px-3 py-1 rounded hover:bg-teal-700"
           >
             一括設定
           </button>
@@ -167,7 +165,7 @@ export default function ReviewTable({ items, onUpdate, roundingMode, profitBase,
       ) : null}
 
       <div className="flex items-center justify-between mb-2">
-        <span className="text-sm text-gray-500">
+        <span className="text-sm text-slate-500">
           {activeCount}件（除外除く） / 全{items.length}件
         </span>
         {!showBulkInput && selected.size === 0 && (
@@ -176,7 +174,7 @@ export default function ReviewTable({ items, onUpdate, roundingMode, profitBase,
               setSelected(new Set(items.map((i) => i.id)))
               setShowBulkInput(true)
             }}
-            className="text-xs text-gray-500 hover:text-blue-600 border border-gray-300 hover:border-blue-400 px-2.5 py-1 rounded transition-colors"
+            className="text-xs text-slate-500 hover:text-teal-600 border border-slate-200 hover:border-teal-400 px-2.5 py-1 rounded transition-colors"
           >
             一括設定
           </button>
@@ -184,9 +182,9 @@ export default function ReviewTable({ items, onUpdate, roundingMode, profitBase,
       </div>
 
       <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-        <div className="overflow-x-auto rounded-lg border border-gray-200 shadow-sm">
+        <div className="overflow-x-auto rounded-lg border border-slate-200 shadow-sm">
           <table className="min-w-full text-sm">
-            <thead className="bg-gray-50 sticky top-0 z-10">
+            <thead className="bg-teal-700 sticky top-0 z-10">
               <tr>
                 <th className="w-7 px-1.5 py-3" />
                 <th className="w-8 px-2 py-3 text-center">
@@ -194,21 +192,21 @@ export default function ReviewTable({ items, onUpdate, roundingMode, profitBase,
                     type="checkbox"
                     checked={selected.size === items.length && items.length > 0}
                     onChange={toggleSelectAll}
-                    className="accent-blue-600"
+                    className="accent-white"
                   />
                 </th>
-                <th className="px-3 py-3 text-left text-xs font-semibold text-gray-600 whitespace-nowrap">No</th>
-                <th className="px-3 py-3 text-left text-xs font-semibold text-gray-600 whitespace-nowrap min-w-[120px]">カテゴリ</th>
-                <th className="px-3 py-3 text-left text-xs font-semibold text-gray-600 whitespace-nowrap min-w-[160px]">名称</th>
-                <th className="px-3 py-3 text-left text-xs font-semibold text-gray-600 whitespace-nowrap min-w-[140px]">内容・仕様</th>
-                <th className="px-3 py-3 text-right text-xs font-semibold text-gray-600 whitespace-nowrap">数量</th>
-                <th className="px-3 py-3 text-left text-xs font-semibold text-gray-600 whitespace-nowrap">単位</th>
-                <th className="px-3 py-3 text-right text-xs font-semibold text-gray-600 whitespace-nowrap">原価単価</th>
-                <th className="px-3 py-3 text-right text-xs font-semibold text-gray-600 whitespace-nowrap">原価合計</th>
-                <th className="px-3 py-3 text-right text-xs font-semibold text-blue-600 whitespace-nowrap">売値単価</th>
-                <th className="px-3 py-3 text-right text-xs font-semibold text-blue-600 whitespace-nowrap">売値金額</th>
-                <th className="px-3 py-3 text-left text-xs font-semibold text-gray-600 whitespace-nowrap min-w-[100px]">備考</th>
-                <th className="px-3 py-3 text-center text-xs font-semibold text-gray-600 whitespace-nowrap">除外</th>
+                <th className="px-3 py-3 text-left text-xs font-semibold text-white whitespace-nowrap">No</th>
+                <th className="px-3 py-3 text-left text-xs font-semibold text-white whitespace-nowrap min-w-[120px]">カテゴリ</th>
+                <th className="px-3 py-3 text-left text-xs font-semibold text-white whitespace-nowrap min-w-[160px]">名称</th>
+                <th className="px-3 py-3 text-left text-xs font-semibold text-white whitespace-nowrap min-w-[140px]">内容・仕様</th>
+                <th className="px-3 py-3 text-right text-xs font-semibold text-white whitespace-nowrap">数量</th>
+                <th className="px-3 py-3 text-left text-xs font-semibold text-white whitespace-nowrap">単位</th>
+                <th className="px-3 py-3 text-right text-xs font-semibold text-white whitespace-nowrap">原価単価</th>
+                <th className="px-3 py-3 text-right text-xs font-semibold text-white whitespace-nowrap">原価合計</th>
+                <th className="px-3 py-3 text-right text-xs font-semibold text-teal-200 whitespace-nowrap">売値単価</th>
+                <th className="px-3 py-3 text-right text-xs font-semibold text-teal-200 whitespace-nowrap">売値金額</th>
+                <th className="px-3 py-3 text-left text-xs font-semibold text-white whitespace-nowrap min-w-[100px]">備考</th>
+                <th className="px-3 py-3 text-center text-xs font-semibold text-white whitespace-nowrap">除外</th>
               </tr>
             </thead>
             <tbody>
@@ -223,11 +221,9 @@ export default function ReviewTable({ items, onUpdate, roundingMode, profitBase,
                 const groupCostTotal = groupActive.reduce((sum, i) => sum + (i.amount ?? 0), 0)
                 return (
                   <Fragment key={category}>
-                    {/* カテゴリヘッダー行 */}
-                    <tr className="border-t-2 border-gray-300 bg-gray-100">
+                    <tr className="border-t-2 border-slate-600 bg-slate-700">
                       <td colSpan={14} className="px-3 py-2">
                         <div className="flex items-center gap-3">
-                          {/* カテゴリ名 */}
                           <input
                             type="text"
                             defaultValue={category}
@@ -238,27 +234,23 @@ export default function ReviewTable({ items, onUpdate, roundingMode, profitBase,
                                 groupItems.includes(i) ? { ...i, category: newCat } : i
                               ))
                             }}
-                            className="text-sm font-bold text-gray-700 bg-transparent border-b border-transparent hover:border-gray-400 focus:border-blue-400 focus:outline-none tracking-wide min-w-[120px] max-w-[300px]"
+                            className="text-sm font-bold text-white bg-transparent border-b border-transparent hover:border-slate-400 focus:border-teal-400 focus:outline-none tracking-wide min-w-[120px] max-w-[300px]"
                           />
 
-                          {/* 件数バッジ */}
-                          <span className="text-xs text-gray-400 whitespace-nowrap">
+                          <span className="text-xs text-slate-400 whitespace-nowrap">
                             {groupActive.length}件
                           </span>
 
-                          {/* 区切り */}
-                          <span className="text-gray-300">|</span>
+                          <span className="text-slate-600">|</span>
 
-                          {/* 操作ボタン群 */}
                           <div className="flex items-center gap-1.5">
-                            {/* 統合／元に戻す */}
                             {(() => {
                               const mergedItem = groupItems.find((i) => i.mergedFrom)
                               if (mergedItem) {
                                 return (
                                   <button
                                     onClick={() => unmergeItem(mergedItem.id)}
-                                    className="inline-flex items-center gap-1 text-xs px-2.5 py-1 rounded-full border border-orange-300 bg-orange-50 text-orange-600 hover:bg-orange-100 transition-colors whitespace-nowrap"
+                                    className="inline-flex items-center gap-1 text-xs px-2.5 py-1 rounded-full border border-orange-400 bg-orange-900/20 text-orange-300 hover:bg-orange-900/40 transition-colors whitespace-nowrap"
                                     title={`統合を解除して${mergedItem.mergedFrom!.length}件の明細に戻す`}
                                   >
                                     <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M1.5 5h7M5.5 2L8.5 5L5.5 8" /></svg>
@@ -270,7 +262,7 @@ export default function ReviewTable({ items, onUpdate, roundingMode, profitBase,
                                 return (
                                   <button
                                     onClick={() => mergeCategory(category)}
-                                    className="inline-flex items-center gap-1 text-xs px-2.5 py-1 rounded-full border border-gray-300 bg-white text-gray-500 hover:border-blue-400 hover:text-blue-600 transition-colors whitespace-nowrap"
+                                    className="inline-flex items-center gap-1 text-xs px-2.5 py-1 rounded-full border border-slate-500 bg-slate-600 text-slate-300 hover:border-teal-400 hover:text-teal-300 transition-colors whitespace-nowrap"
                                     title="このカテゴリの項目を1行に統合"
                                   >
                                     <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M1.5 3h7M1.5 5h7M1.5 7h7" /></svg>
@@ -285,7 +277,6 @@ export default function ReviewTable({ items, onUpdate, roundingMode, profitBase,
                       </td>
                     </tr>
 
-                    {/* 明細表示：個別行（ドラッグ&ドロップ対応） */}
                     <SortableContext items={groupItems.map((i) => i.id)} strategy={verticalListSortingStrategy}>
                       {groupItems.map((item, groupItemIndex) => (
                         <ReviewTableRow
@@ -303,17 +294,16 @@ export default function ReviewTable({ items, onUpdate, roundingMode, profitBase,
                       ))}
                     </SortableContext>
 
-                    {/* 小計行 */}
                     {(groupSellingTotal > 0 || groupCostTotal > 0) && (
-                      <tr className="bg-blue-50 border-t border-blue-200">
-                        <td colSpan={9} className="px-3 py-1.5 text-right text-xs font-semibold text-blue-600">
+                      <tr className="bg-teal-50 border-t border-teal-100">
+                        <td colSpan={9} className="px-3 py-1.5 text-right text-xs font-semibold text-teal-700">
                           小計
                         </td>
-                        <td className="px-3 py-1.5 text-right text-xs font-semibold text-gray-500 whitespace-nowrap">
+                        <td className="px-3 py-1.5 text-right text-xs font-semibold text-slate-500 whitespace-nowrap">
                           {groupCostTotal > 0 ? `¥${formatNum(Math.round(groupCostTotal))}` : ''}
                         </td>
                         <td />
-                        <td className="px-3 py-1.5 text-right text-xs font-semibold text-blue-600 whitespace-nowrap">
+                        <td className="px-3 py-1.5 text-right text-xs font-semibold text-teal-700 whitespace-nowrap">
                           {groupSellingTotal > 0 ? `¥${formatNum(Math.round(groupSellingTotal))}` : ''}
                         </td>
                         <td colSpan={2} />
@@ -324,7 +314,7 @@ export default function ReviewTable({ items, onUpdate, roundingMode, profitBase,
               })}
             </tbody>
             <tfoot>
-              <tr className="bg-gray-800 text-white">
+              <tr className="bg-slate-800 text-white">
                 <td colSpan={9} className="px-3 py-2.5 text-right text-xs font-bold tracking-wide">
                   合計（除外除く）
                 </td>
@@ -332,10 +322,10 @@ export default function ReviewTable({ items, onUpdate, roundingMode, profitBase,
                   {totalCost > 0 ? `¥${formatNum(Math.round(totalCost))}` : '—'}
                 </td>
                 <td />
-                <td className="px-3 py-2.5 text-right text-sm font-bold text-blue-300 whitespace-nowrap">
+                <td className="px-3 py-2.5 text-right text-sm font-bold text-teal-300 whitespace-nowrap">
                   {totalSelling > 0 ? `¥${formatNum(totalSelling)}` : '—'}
                 </td>
-                <td colSpan={2} className="px-3 py-2.5 text-xs text-gray-400 whitespace-nowrap">
+                <td colSpan={2} className="px-3 py-2.5 text-xs text-slate-400 whitespace-nowrap">
                   {totalCost > 0 && totalSelling > 0 && (() => {
                     const sellingForProfit = profitBase === 'tax_included'
                       ? Math.round(totalSelling * 1.1)
@@ -347,7 +337,7 @@ export default function ReviewTable({ items, onUpdate, roundingMode, profitBase,
                         粗利率{' '}
                         <span className="text-white font-semibold">{profitRate}%</span>
                         {profitBase === 'tax_included' && (
-                          <span className="text-gray-500 ml-1">(税込)</span>
+                          <span className="text-slate-500 ml-1">(税込)</span>
                         )}
                       </>
                     )
@@ -359,7 +349,6 @@ export default function ReviewTable({ items, onUpdate, roundingMode, profitBase,
         </div>
       </DndContext>
 
-      {/* テキスト展開モーダル */}
       {expandedCell && (() => {
         const target = items.find((i) => i.id === expandedCell.id)
         if (!target) return null
