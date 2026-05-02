@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useSession, signOut } from 'next-auth/react'
 import { RoundingMode, ProfitBase, PricingMode, MarkupSettings } from '@/lib/types'
 
 interface SettingsModalProps {
@@ -39,8 +40,17 @@ export default function SettingsModal({
   onMarkupSettingsChange,
   onClose,
 }: SettingsModalProps) {
+  const { data: session } = useSession()
+  const isAdmin = session?.user?.isAdmin ?? false
+
   const [newCategory, setNewCategory] = useState('')
   const [newRate, setNewRate] = useState('')
+
+  const [newEmail, setNewEmail] = useState(session?.user?.email ?? '')
+  const [currentPassword, setCurrentPassword] = useState('')
+  const [newPassword, setNewPassword] = useState('')
+  const [accountLoading, setAccountLoading] = useState(false)
+  const [accountMessage, setAccountMessage] = useState<{ type: 'ok' | 'err'; text: string } | null>(null)
 
   const isMarkup = markupSettings.pricingMode === 'markup'
 
@@ -91,6 +101,45 @@ export default function SettingsModal({
       const next = { ...markupSettings.categoryMargins }
       delete next[category]
       onMarkupSettingsChange({ ...markupSettings, categoryMargins: next })
+    }
+  }
+
+  async function handleEmailSave() {
+    if (!newEmail || newEmail === session?.user?.email) return
+    setAccountLoading(true)
+    setAccountMessage(null)
+    const res = await fetch('/api/account', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: newEmail }),
+    })
+    setAccountLoading(false)
+    if (res.ok) {
+      setAccountMessage({ type: 'ok', text: 'メールアドレスを更新しました。再ログインしてください。' })
+      setTimeout(() => signOut({ callbackUrl: '/login' }), 1500)
+    } else {
+      const d = await res.json()
+      setAccountMessage({ type: 'err', text: d.error ?? '更新に失敗しました' })
+    }
+  }
+
+  async function handlePasswordSave() {
+    if (!currentPassword || !newPassword) return
+    setAccountLoading(true)
+    setAccountMessage(null)
+    const res = await fetch('/api/account', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ currentPassword, password: newPassword }),
+    })
+    setAccountLoading(false)
+    if (res.ok) {
+      setAccountMessage({ type: 'ok', text: 'パスワードを変更しました。' })
+      setCurrentPassword('')
+      setNewPassword('')
+    } else {
+      const d = await res.json()
+      setAccountMessage({ type: 'err', text: d.error ?? '変更に失敗しました' })
     }
   }
 
@@ -273,6 +322,66 @@ export default function SettingsModal({
               ))}
             </select>
           </div>
+
+          {!isAdmin && (
+            <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 space-y-5">
+              <p className="text-sm font-semibold text-slate-700 flex items-center gap-2">
+                <span className="text-base">👤</span> アカウント設定
+              </p>
+
+              <div>
+                <label className="block text-xs font-medium text-slate-500 mb-1">メールアドレス</label>
+                <input
+                  type="email"
+                  value={newEmail}
+                  onChange={(e) => setNewEmail(e.target.value)}
+                  className="w-full text-sm border border-slate-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white"
+                />
+                <button
+                  onClick={handleEmailSave}
+                  disabled={accountLoading || !newEmail || newEmail === session?.user?.email}
+                  className="mt-2 w-full text-sm bg-teal-600 hover:bg-teal-700 text-white py-2 rounded-lg disabled:bg-slate-200 disabled:text-slate-400 transition-colors font-medium"
+                >
+                  {accountLoading ? '保存中...' : '変更を保存'}
+                </button>
+              </div>
+
+              <div className="border-t border-slate-200" />
+
+              <div>
+                <label className="block text-xs font-medium text-slate-500 mb-1">パスワード変更</label>
+                <div className="space-y-2">
+                  <input
+                    type="password"
+                    placeholder="現在のパスワード"
+                    value={currentPassword}
+                    onChange={(e) => setCurrentPassword(e.target.value)}
+                    className="w-full text-sm border border-slate-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white"
+                  />
+                  <input
+                    type="password"
+                    placeholder="新しいパスワード"
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    className="w-full text-sm border border-slate-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white"
+                  />
+                </div>
+                <button
+                  onClick={handlePasswordSave}
+                  disabled={accountLoading || !currentPassword || !newPassword}
+                  className="mt-2 w-full text-sm bg-teal-600 hover:bg-teal-700 text-white py-2 rounded-lg disabled:bg-slate-200 disabled:text-slate-400 transition-colors font-medium"
+                >
+                  {accountLoading ? '変更中...' : 'パスワードを変更'}
+                </button>
+              </div>
+
+              {accountMessage && (
+                <p className={`text-xs ${accountMessage.type === 'ok' ? 'text-teal-600' : 'text-red-600'}`}>
+                  {accountMessage.text}
+                </p>
+              )}
+            </div>
+          )}
 
         </div>
 

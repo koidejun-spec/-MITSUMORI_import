@@ -31,6 +31,7 @@ export const authOptions: NextAuthOptions = {
       if (user) {
         token.email = user.email
         token.name = user.name
+        token.isAdmin = user.email === process.env.AUTH_USER_EMAIL
       }
       return token
     },
@@ -38,6 +39,7 @@ export const authOptions: NextAuthOptions = {
       if (session.user) {
         session.user.email = token.email as string
         session.user.name = token.name as string
+        session.user.isAdmin = token.isAdmin as boolean
       }
       return session
     },
